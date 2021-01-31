@@ -1,0 +1,96 @@
+body {
+    margin: 0;
+}
+
+@font-face {
+    font-family: 'Dilana';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Dilana'), url('../assets/fonts/fuente  dilana.woff') format('woff');
+}
+
+#topBoard {
+    display: grid;
+    width: 100%;
+}
+
+.placeholder {
+    width: 195px;
+    height: 288px;
+}
+
+.center-fit {
+    max-width: 100%;
+    max-height: 100vh;
+    margin: auto;
+}
+
+#centerBoard {
+    width: 100%;
+    align-items: center;
+    margin: 2rem 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#centerBoard:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+#centerBoard .card {
+    border-radius: 1rem;
+    float: left;
+    font-family: 'Dilana';
+    font-size: 2rem;
+    border: 1px solid black;
+    margin: .3rem;
+    vertical-align: center;
+    text-align: center;
+}
+
+#cardBlock {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+#centerBoard .placeholder {
+    color: #8c8c8c;
+    background-color: #d9d9d9;
+    border: .15rem dashed #8c8c8c;
+    cursor: default;
+}
+
+#playerCards {
+    width: 100%;
+}
+
+#playerCards .card {
+    border-radius: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    float: left;
+    margin: .3rem;
+    transition: transform 0.25s;
+}
+
+#playerCards img {
+    min-width: 100%;
+    min-height: 100%;
+  
+}
+
+#playerCards .card:hover {
+    transform: scale(1.4);
+}
+
+#playerName {
+    font-family: 'Dilana';
+    font-size: 2rem;
+}
