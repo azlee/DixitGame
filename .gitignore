@@ -1,3 +1,4 @@
 .DS_STORE
 public/assets/imgs/bash.sh
 node_modules/
+*.js.map
