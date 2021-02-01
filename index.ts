@@ -236,7 +236,6 @@ const CARDS: string[] = [
   'assets/imgs/34.jpg',
   'assets/imgs/35.jpg',
   'assets/imgs/37.jpeg',
-  'assets/imgs/38.jpg',
   'assets/imgs/39.png',
   'assets/imgs/4.png',
   'assets/imgs/40.jpg',
@@ -253,7 +252,6 @@ const CARDS: string[] = [
   'assets/imgs/50.jpg',
   'assets/imgs/51.jpg',
   'assets/imgs/52.jpg',
-  'assets/imgs/53.jpg',
   'assets/imgs/54.jpg',
   'assets/imgs/55.jpg',
   'assets/imgs/56.jpg',
@@ -299,7 +297,6 @@ const CARDS: string[] = [
   'assets/imgs/96.png',
   'assets/imgs/97.png',
   'assets/imgs/98.png',
-  'assets/imgs/99.png',
 ];
 
 const NUMBER_CARDS_PER_PLAYER = 6;
@@ -363,7 +360,7 @@ function initializeGameState(gameId): GameState {
     // cards in play (in center)
     answerCards: [],
     discardAnswers: [],
-    storyteller: 0,
+    storyteller: 1,
     gameId,
     gameStatus: GameStatus.WAITING_FOR_ALL_PLAYERS,
     numCardsPerPlayer: NUMBER_CARDS_PER_PLAYER,

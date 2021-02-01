@@ -15,8 +15,11 @@ body {
 }
 
 .placeholder {
-    width: 195px;
-    height: 288px;
+    padding: 3.5rem 0.75rem;
+}
+
+#instruction {
+    text-align: center;
 }
 
 .center-fit {
@@ -45,17 +48,24 @@ body {
     float: left;
     font-family: 'Dilana';
     font-size: 2rem;
-    border: 1px solid black;
     margin: .3rem;
-    vertical-align: center;
     text-align: center;
 }
 
 #cardBlock {
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
+}
+
+#cardBlock input[type=radio]{
+    display: none;
+}
+
+input[type=radio]:checked + label > img {
+    opacity: 1.0 !important;
+    filter: opacity(100%) saturate(120%) !important;
+    box-sizing: border-box;
 }
 
 #centerBoard .placeholder {
@@ -70,7 +80,7 @@ body {
 }
 
 #playerCards .card {
-    border-radius: 25px;
+    border-radius: 1rem;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -78,19 +88,34 @@ body {
     float: left;
     margin: .3rem;
     transition: transform 0.25s;
+    max-width: 175px;
+    max-height: 263px;
+    height: 100%;
+    width: 100%;
 }
 
-#playerCards img {
+#playerCards label img {
     min-width: 100%;
     min-height: 100%;
-  
+    opacity: 0.75;
+    filter: opacity(75%);
+}
+
+#playerCards label img:hover {
+    opacity: 1.0;
+    filter: opacity(100%);
 }
 
 #playerCards .card:hover {
-    transform: scale(1.4);
+    transform: scale(1.35);
 }
 
 #playerName {
     font-family: 'Dilana';
     font-size: 2rem;
+}
+
+#storyTellerClue {
+    display: flex;
+    justify-content: center;
 }

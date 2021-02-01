@@ -167,16 +167,39 @@ function getPlayer(id) {
  * Render the cards in the player's hands
  */
 function renderCardsInHand() {
+    var isStoryTeller = GAME_STATE.storyteller === playerId;
     var cardsInHand = getPlayer(playerId).cardsInHand;
     var cardBlock = document.getElementById('cardBlock');
     for (var i = 0; i < cardsInHand.length; i += 1) {
         var card = cardsInHand[i];
+        var checkBox = document.createElement('input');
+        checkBox.type = 'radio';
+        checkBox.name = 'selectedCard';
+        checkBox.id = "card-" + i;
+        var label = document.createElement('label');
+        label.htmlFor = "card-" + i;
         var cardDoc = document.createElement('div');
         cardDoc.className = 'card';
         var imgDoc = document.createElement('img');
         imgDoc.src = card;
-        cardDoc.append(imgDoc);
+        cardDoc.append(checkBox);
+        label.append(imgDoc);
+        cardDoc.append(label);
         cardBlock.append(cardDoc);
+    }
+    if (isStoryTeller) {
+        // insert input text box
+        var clueLabel = document.createElement('label');
+        clueLabel.htmlFor = 'clueBox';
+        clueLabel.innerHTML = 'Story/Clue:&nbsp;';
+        var clueBox = document.createElement('textarea');
+        clueBox.maxLength = 125;
+        clueBox.rows = 5;
+        clueBox.cols = 20;
+        clueBox.id = 'clueBox';
+        var storyTellerClue = document.getElementById('storyTellerClue');
+        storyTellerClue.append(clueLabel);
+        storyTellerClue.append(clueBox);
     }
 }
 /**

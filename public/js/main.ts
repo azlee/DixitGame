@@ -199,16 +199,39 @@ function getPlayer(id: number): Player {
  * Render the cards in the player's hands
  */
 function renderCardsInHand() {
+  const isStoryTeller: boolean = GAME_STATE.storyteller === playerId;
   const { cardsInHand } = getPlayer(playerId);
   const cardBlock = document.getElementById('cardBlock');
   for (let i = 0; i < cardsInHand.length; i += 1) {
     const card: string = cardsInHand[i];
+    const checkBox = document.createElement('input');
+    checkBox.type = 'radio';
+    checkBox.name = 'selectedCard';
+    checkBox.id = `card-${i}`;
+    const label = document.createElement('label');
+    label.htmlFor = `card-${i}`;
     const cardDoc = document.createElement('div');
     cardDoc.className = 'card';
     const imgDoc = document.createElement('img');
     imgDoc.src = card;
-    cardDoc.append(imgDoc);
+    cardDoc.append(checkBox);
+    label.append(imgDoc);
+    cardDoc.append(label);
     cardBlock.append(cardDoc);
+  }
+  if (isStoryTeller) {
+    // insert input text box
+    const clueLabel = document.createElement('label');
+    clueLabel.htmlFor = 'clueBox';
+    clueLabel.innerHTML = 'Story/Clue:&nbsp;';
+    const clueBox = document.createElement('textarea');
+    clueBox.maxLength = 125;
+    clueBox.rows = 5;
+    clueBox.cols = 20;
+    clueBox.id = 'clueBox';
+    const storyTellerClue = document.getElementById('storyTellerClue');
+    storyTellerClue.append(clueLabel);
+    storyTellerClue.append(clueBox);
   }
 }
 

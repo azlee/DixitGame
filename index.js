@@ -200,7 +200,6 @@ var CARDS = [
     'assets/imgs/34.jpg',
     'assets/imgs/35.jpg',
     'assets/imgs/37.jpeg',
-    'assets/imgs/38.jpg',
     'assets/imgs/39.png',
     'assets/imgs/4.png',
     'assets/imgs/40.jpg',
@@ -217,7 +216,6 @@ var CARDS = [
     'assets/imgs/50.jpg',
     'assets/imgs/51.jpg',
     'assets/imgs/52.jpg',
-    'assets/imgs/53.jpg',
     'assets/imgs/54.jpg',
     'assets/imgs/55.jpg',
     'assets/imgs/56.jpg',
@@ -263,7 +261,6 @@ var CARDS = [
     'assets/imgs/96.png',
     'assets/imgs/97.png',
     'assets/imgs/98.png',
-    'assets/imgs/99.png',
 ];
 var NUMBER_CARDS_PER_PLAYER = 6;
 var MAX_NUMBER_PLAYERS = 8;
@@ -317,7 +314,7 @@ function initializeGameState(gameId) {
         // cards in play (in center)
         answerCards: [],
         discardAnswers: [],
-        storyteller: 0,
+        storyteller: 1,
         gameId: gameId,
         gameStatus: GameStatus.WAITING_FOR_ALL_PLAYERS,
         numCardsPerPlayer: NUMBER_CARDS_PER_PLAYER,
