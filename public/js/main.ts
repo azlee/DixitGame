@@ -226,7 +226,7 @@ function renderCardsInHand() {
     clueLabel.innerHTML = 'Story/Clue:&nbsp;';
     const clueBox = document.createElement('textarea');
     clueBox.maxLength = 125;
-    clueBox.rows = 5;
+    clueBox.rows = 2;
     clueBox.cols = 20;
     clueBox.id = 'clueBox';
     const button = document.createElement('button');

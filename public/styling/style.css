@@ -119,7 +119,12 @@ input[type=radio]:checked + .card {
 }
 
 #storyTellerClue button {
-    background-color: #7e9a9a;
+    background-color: #66b3ff;
     color: #ffffff;
     cursor: pointer;
+    font-weight: bold;
+}
+#storyTellerClue button:hover {
+    background-color: #1a8cff;
+    transition: 0.2s;
 }

@@ -194,7 +194,7 @@ function renderCardsInHand() {
         clueLabel.innerHTML = 'Story/Clue:&nbsp;';
         var clueBox = document.createElement('textarea');
         clueBox.maxLength = 125;
-        clueBox.rows = 5;
+        clueBox.rows = 2;
         clueBox.cols = 20;
         clueBox.id = 'clueBox';
         var button = document.createElement('button');
