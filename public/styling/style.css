@@ -62,10 +62,9 @@ body {
     display: none;
 }
 
-input[type=radio]:checked + label > img {
-    opacity: 1.0 !important;
-    filter: opacity(100%) saturate(120%) !important;
+input[type=radio]:checked + .card {
     box-sizing: border-box;
+    box-shadow: 0 0 50px #53ff1a;
 }
 
 #centerBoard .placeholder {
@@ -92,22 +91,21 @@ input[type=radio]:checked + label > img {
     max-height: 263px;
     height: 100%;
     width: 100%;
+    z-index: 1;
+}
+
+#playerCards .card:hover {
+    box-shadow: 0 0 50px #666666;
 }
 
 #playerCards label img {
     min-width: 100%;
     min-height: 100%;
-    opacity: 0.75;
-    filter: opacity(75%);
-}
-
-#playerCards label img:hover {
-    opacity: 1.0;
-    filter: opacity(100%);
 }
 
 #playerCards .card:hover {
     transform: scale(1.35);
+    z-index: 100;
 }
 
 #playerName {
@@ -118,4 +116,10 @@ input[type=radio]:checked + label > img {
 #storyTellerClue {
     display: flex;
     justify-content: center;
+}
+
+#storyTellerClue button {
+    background-color: #7e9a9a;
+    color: #ffffff;
+    cursor: pointer;
 }

@@ -214,7 +214,7 @@ function renderCardsInHand() {
     cardDoc.className = 'card';
     const imgDoc = document.createElement('img');
     imgDoc.src = card;
-    cardDoc.append(checkBox);
+    cardBlock.append(checkBox);
     label.append(imgDoc);
     cardDoc.append(label);
     cardBlock.append(cardDoc);
@@ -229,9 +229,12 @@ function renderCardsInHand() {
     clueBox.rows = 5;
     clueBox.cols = 20;
     clueBox.id = 'clueBox';
+    const button = document.createElement('button');
+    button.innerHTML = 'Submit';
     const storyTellerClue = document.getElementById('storyTellerClue');
     storyTellerClue.append(clueLabel);
     storyTellerClue.append(clueBox);
+    storyTellerClue.append(button);
   }
 }
 
