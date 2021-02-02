@@ -164,6 +164,22 @@ function getPlayer(id) {
     return GAME_STATE.players.get(id);
 }
 /**
+ * Enable or disable submit button for storyteller clue
+ */
+function addDisableEnableButton() {
+    $('#clueButton').prop('disabled', true);
+    var clueBox = document.getElementById('clueBox') !== null;
+    function validateSubmitButton() {
+        var isNameEntered = $('#clueBox').val().trim() !== '';
+        var isCardSelected = $('input[type=radio]:checked').size() > 0;
+        $('#clueButton').prop('disabled', !isNameEntered || !isCardSelected);
+    }
+    $('#clueBox').on('keyup', validateSubmitButton);
+    if (clueBox) {
+        $('#clueBox').on('keyup', validateSubmitButton);
+    }
+}
+/**
  * Render the cards in the player's hands
  */
 function renderCardsInHand() {
@@ -198,11 +214,13 @@ function renderCardsInHand() {
         clueBox.cols = 20;
         clueBox.id = 'clueBox';
         var button = document.createElement('button');
+        button.id = 'clueButton';
         button.innerHTML = 'Submit';
         var storyTellerClue = document.getElementById('storyTellerClue');
         storyTellerClue.append(clueLabel);
         storyTellerClue.append(clueBox);
         storyTellerClue.append(button);
+        addDisableEnableButton();
     }
 }
 /**

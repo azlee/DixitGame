@@ -64,7 +64,7 @@ body {
 
 input[type=radio]:checked + .card {
     box-sizing: border-box;
-    box-shadow: 0 0 30px #53ff1a;
+    box-shadow: 0 0 30px #53ff1a !important;
 }
 
 #centerBoard .placeholder {
@@ -116,15 +116,25 @@ input[type=radio]:checked + .card {
 #storyTellerClue {
     display: flex;
     justify-content: center;
+    padding-top: 1rem;
 }
 
 #storyTellerClue button {
-    background-color: #66b3ff;
+    background-color: #1a8cff;
     color: #ffffff;
     cursor: pointer;
     font-weight: bold;
 }
+
+#storyTellerClue button:disabled {
+    background-color: #80bfff;
+}
+
+#storyTellerClue button:disabled:hover {
+    background-color: #80bfff;
+}
+
 #storyTellerClue button:hover {
-    background-color: #1a8cff;
+    background-color: #0066cc;
     transition: 0.2s;
 }

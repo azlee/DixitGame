@@ -196,6 +196,25 @@ function getPlayer(id: number): Player {
 }
 
 /**
+ * Enable or disable submit button for storyteller clue
+ */
+function addDisableEnableButton() {
+  $('#clueButton').prop('disabled', true);
+  const clueBox = document.getElementById('clueBox') !== null;
+
+  function validateSubmitButton() {
+    const isNameEntered = $('#clueBox').val().trim() !== '';
+    const isCardSelected = $('input[type=radio]:checked').size() > 0;
+    $('#clueButton').prop('disabled', !isNameEntered || !isCardSelected);
+  }
+
+  $('#clueBox').on('keyup', validateSubmitButton);
+  if (clueBox) {
+    $('#clueBox').on('keyup', validateSubmitButton);
+  }
+}
+
+/**
  * Render the cards in the player's hands
  */
 function renderCardsInHand() {
@@ -230,11 +249,13 @@ function renderCardsInHand() {
     clueBox.cols = 20;
     clueBox.id = 'clueBox';
     const button = document.createElement('button');
+    button.id = 'clueButton';
     button.innerHTML = 'Submit';
     const storyTellerClue = document.getElementById('storyTellerClue');
     storyTellerClue.append(clueLabel);
     storyTellerClue.append(clueBox);
     storyTellerClue.append(button);
+    addDisableEnableButton();
   }
 }
 
