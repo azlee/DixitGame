@@ -206,6 +206,8 @@ function getPlayer(id: number): Player {
   return GAME_STATE.players.get(id);
 }
 
+// TODO: first card is not selectable..
+
 /**
  * Enable or disable submit button for storyteller clue
  */
