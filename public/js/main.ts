@@ -307,24 +307,33 @@ function renderCardsInHand() {
   const isStoryTeller: boolean = GAME_STATE.storyteller === playerId;
   const { cardsInHand } = getPlayer(playerId);
   const cardBlock: HTMLElement = document.getElementById('cardBlock');
-  cardBlock.innerHTML = '';
-  // TODO: Don't rerender this just change the img src
-  for (let i = 0; i < cardsInHand.length; i += 1) {
-    const card: string = cardsInHand[i];
-    const checkBox = document.createElement('input');
-    checkBox.type = 'radio';
-    checkBox.name = 'selectedCard';
-    checkBox.id = `card-${i}`;
-    const label = document.createElement('label');
-    label.htmlFor = `card-${i}`;
-    const cardDoc = document.createElement('div');
-    cardDoc.className = 'card';
-    const imgDoc = document.createElement('img');
-    imgDoc.src = card;
-    cardBlock.append(checkBox);
-    label.append(imgDoc);
-    cardDoc.append(label);
-    cardBlock.append(cardDoc);
+  if (cardBlock.innerHTML.trim() === '') {
+    for (let i = 0; i < cardsInHand.length; i += 1) {
+      const card: string = cardsInHand[i];
+      const checkBox: HTMLInputElement = document.createElement('input');
+      checkBox.type = 'radio';
+      checkBox.name = 'selectedCard';
+      checkBox.id = `card-${i}`;
+      const label = document.createElement('label');
+      label.htmlFor = `card-${i}`;
+      const cardDoc = document.createElement('div');
+      cardDoc.className = 'card';
+      const imgDoc = document.createElement('img');
+      imgDoc.src = card;
+      imgDoc.id = `card-img-${i}`;
+      cardBlock.append(checkBox);
+      label.append(imgDoc);
+      cardDoc.append(label);
+      cardBlock.append(cardDoc);
+    }
+  } else {
+    for (let i = 0; i < cardsInHand.length; i += 1) {
+      const imgDoc: HTMLElement = document.getElementById(`card-img-${i}`);
+      // only change the card that changed src
+      if (cardsInHand[i] !== imgDoc.src) {
+        imgDoc.src = cardsInHand[i];
+      }
+    }
   }
   if (isStoryTeller) {
     renderStoryTellerClue();
