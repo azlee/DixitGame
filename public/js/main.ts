@@ -273,20 +273,52 @@ function renderInstruction() {
 }
 
 /**
+ * Render the clue text box and submit button for the story teller
+ */
+function renderStoryTellerClue() {
+  // insert input text box
+  const clueLabel = document.createElement('label');
+  clueLabel.htmlFor = 'clueBox';
+  clueLabel.innerHTML = 'Story/Clue:&nbsp;';
+  const clueBox = document.createElement('textarea');
+  clueBox.maxLength = 125;
+  clueBox.rows = 2;
+  clueBox.cols = 20;
+  clueBox.id = 'clueBox';
+  const button = document.createElement('button');
+  button.id = 'clueButton';
+  button.innerHTML = 'Submit';
+  const storyTellerClue = document.getElementById('storyTellerClue');
+  storyTellerClue.innerHTML = '';
+  // add event listener to submit button
+  button.addEventListener('click', () => {
+    applyMove(Move.STORY_TELLER_SUBMIT);
+  });
+  storyTellerClue.append(clueLabel);
+  storyTellerClue.append(clueBox);
+  storyTellerClue.append(button);
+  addDisableEnableButton();
+}
+
+/**
  * Render the cards in the player's hands
  */
 function renderCardsInHand() {
   const isStoryTeller: boolean = GAME_STATE.storyteller === playerId;
   const { cardsInHand } = getPlayer(playerId);
-  const cardBlock = document.getElementById('cardBlock');
+  const cardBlock: HTMLElement = document.getElementById('cardBlock');
   cardBlock.innerHTML = '';
+  // TODO: Don't rerender this just change the img src
   for (let i = 0; i < cardsInHand.length; i += 1) {
+    console.log(`i is ${i}`);
     const card: string = cardsInHand[i];
     const checkBox = document.createElement('input');
     checkBox.type = 'radio';
     checkBox.name = 'selectedCard';
     checkBox.id = `card-${i}`;
+    console.log(`checkBox i is ${i}`);
     const label = document.createElement('label');
+    console.log(`label i is ${i}`);
     label.htmlFor = `card-${i}`;
     const cardDoc = document.createElement('div');
     cardDoc.className = 'card';
@@ -298,28 +330,34 @@ function renderCardsInHand() {
     cardBlock.append(cardDoc);
   }
   if (isStoryTeller) {
-    // insert input text box
-    const clueLabel = document.createElement('label');
-    clueLabel.htmlFor = 'clueBox';
-    clueLabel.innerHTML = 'Story/Clue:&nbsp;';
-    const clueBox = document.createElement('textarea');
-    clueBox.maxLength = 125;
-    clueBox.rows = 2;
-    clueBox.cols = 20;
-    clueBox.id = 'clueBox';
-    const button = document.createElement('button');
-    button.id = 'clueButton';
-    button.innerHTML = 'Submit';
-    const storyTellerClue = document.getElementById('storyTellerClue');
-    storyTellerClue.innerHTML = '';
-    // add event listener to submit button
-    button.addEventListener('click', () => {
-      applyMove(Move.STORY_TELLER_SUBMIT);
-    });
-    storyTellerClue.append(clueLabel);
-    storyTellerClue.append(clueBox);
-    storyTellerClue.append(button);
-    addDisableEnableButton();
+    renderStoryTellerClue();
+  }
+}
+
+/**
+ * Render cards in the center
+ */
+function renderCardsInCenter() {
+  const centerBoard: HTMLElement = document.getElementById('centerBoard');
+  centerBoard.innerHTML = '';
+  const allPlayersPlayed: boolean = GAME_STATE.answerCards.length === GAME_STATE.players.size;
+  // render placeholders
+  for (let i = 0; i < GAME_STATE.players.size; i += 1) {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'card';
+    placeholder.id = `card-${i}`;
+    const imgDoc = document.createElement('img');
+    imgDoc.id = `card-img-${i}`;
+    imgDoc.src = '../assets/imgs/placeholder.png';
+    placeholder.append(imgDoc);
+    centerBoard.append(placeholder);
+  }
+  // replace placeholders
+  for (let i = 0; i < GAME_STATE.answerCards.length; i += 1) {
+    // to do - add imgs and radio selector
+    const imgDoc = document.getElementById(`card-img-${i}`);
+    const cardLocation = GAME_STATE.answerCards[i];
+    imgDoc.src = allPlayersPlayed ? '../assets/imgs/back.png' : `../${cardLocation}`;
   }
 }
 
@@ -327,8 +365,9 @@ function renderCardsInHand() {
  * Remove the clue box if the storyteller has submitted their clue & card
  */
 function removeClueBox() {
-  const storyTellerClue = document.getElementById('storyTellerClue');
-  if (storyTellerClue && GAME_STATE.storyteller === playerId && getPlayer(playerId).state !== PlayerState.NOT_PLAYED_CLUE) {
+  const storyTellerClue: HTMLElement = document.getElementById('storyTellerClue');
+  if (storyTellerClue && GAME_STATE.storyteller === playerId
+    && getPlayer(playerId).state !== PlayerState.NOT_PLAYED_CLUE) {
     storyTellerClue.remove();
   }
 }
@@ -339,19 +378,21 @@ function removeClueBox() {
  * @param: {GameState} - prevState previous game state
  */
 function renderBoard(prevState: GameState) {
-  const cardHandChanged = !prevState.players.get(playerId)
+  const cardHandChanged: boolean = !prevState.players.get(playerId)
   || getPlayer(playerId).cardsInHand !== prevState.players.get(playerId).cardsInHand;
   if (cardHandChanged) {
     renderCardsInHand();
   }
   renderInstruction();
   removeClueBox();
+  renderCardsInCenter();
 }
 
 function renderEntireBoard() {
   renderCardsInHand();
   renderInstruction();
   removeClueBox();
+  renderCardsInCenter();
 }
 
 /** **************************************************************************

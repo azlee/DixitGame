@@ -90,7 +90,6 @@ const CARDS: string[] = [
   'assets/imgs/101.png',
   'assets/imgs/102.png',
   'assets/imgs/103.png',
-  'assets/imgs/104.png',
   'assets/imgs/105.png',
   'assets/imgs/106.png',
   'assets/imgs/107.png',
