@@ -214,7 +214,7 @@ function addDisableEnableButton() {
   const clueBox = document.getElementById('clueBox') !== null;
 
   function validateSubmitButton() {
-    const isClueEntered = $('#clueBox').val().trim() !== '';
+    const isClueEntered = $('#clueBox').val() && $('#clueBox').val().trim() !== '';
     const isCardSelected = $('input[type=radio]:checked').size() > 0;
     $('#clueButton').prop('disabled', !isClueEntered || !isCardSelected);
   }
@@ -307,7 +307,7 @@ function renderCardsInHand() {
   const isStoryTeller: boolean = GAME_STATE.storyteller === playerId;
   const { cardsInHand } = getPlayer(playerId);
   const cardBlock: HTMLElement = document.getElementById('cardBlock');
-  if (cardBlock.innerHTML.trim() === '') {
+  if (cardBlock.innerHTML && cardBlock.innerHTML.trim() === '') {
     for (let i = 0; i < cardsInHand.length; i += 1) {
       const card: string = cardsInHand[i];
       const checkBox: HTMLInputElement = document.createElement('input');
