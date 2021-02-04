@@ -145,8 +145,8 @@ enum Move {
 }
 
 enum Instruction {
-  STORYTELLER = 'You are the storyteller! Select a card and clue.',
-  STORYTELLER_WAIT = 'Wait for other players to submit a card.',
+  STORYTELLER = 'You are the storyteller! Select a card and clue and submit.',
+  STORYTELLER_WAIT = 'Thanks! Wait for other players to submit a card.',
   PLAYERS_WAIT_STORYTELLER = '%s is the storyteller! Wait for them to submit a card & clue.',
 }
 
@@ -214,12 +214,13 @@ function addDisableEnableButton() {
   const clueBox = document.getElementById('clueBox') !== null;
 
   function validateSubmitButton() {
-    const isNameEntered = $('#clueBox').val().trim() !== '';
+    const isClueEntered = $('#clueBox').val().trim() !== '';
     const isCardSelected = $('input[type=radio]:checked').size() > 0;
-    $('#clueButton').prop('disabled', !isNameEntered || !isCardSelected || getPlayer(playerId).state === PlayerState.PLAYED_CLUE);
+    console.log(`isClueEntered: ${isClueEntered}, isCardSelected: ${isCardSelected}`);
+    $('#clueButton').prop('disabled', !isClueEntered || !isCardSelected);
   }
 
-  $('input[type=radio]:checked').change(validateSubmitButton);
+  $('input[type=radio]').on('change', validateSubmitButton);
   $('#clueBox').on('keyup', validateSubmitButton);
   if (clueBox) {
     $('#clueBox').on('keyup', validateSubmitButton);
