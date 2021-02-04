@@ -310,15 +310,12 @@ function renderCardsInHand() {
   cardBlock.innerHTML = '';
   // TODO: Don't rerender this just change the img src
   for (let i = 0; i < cardsInHand.length; i += 1) {
-    console.log(`i is ${i}`);
     const card: string = cardsInHand[i];
     const checkBox = document.createElement('input');
     checkBox.type = 'radio';
     checkBox.name = 'selectedCard';
     checkBox.id = `card-${i}`;
-    console.log(`checkBox i is ${i}`);
     const label = document.createElement('label');
-    console.log(`label i is ${i}`);
     label.htmlFor = `card-${i}`;
     const cardDoc = document.createElement('div');
     cardDoc.className = 'card';
