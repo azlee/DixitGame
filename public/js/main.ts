@@ -216,7 +216,6 @@ function addDisableEnableButton() {
   function validateSubmitButton() {
     const isClueEntered = $('#clueBox').val().trim() !== '';
     const isCardSelected = $('input[type=radio]:checked').size() > 0;
-    console.log(`isClueEntered: ${isClueEntered}, isCardSelected: ${isCardSelected}`);
     $('#clueButton').prop('disabled', !isClueEntered || !isCardSelected);
   }
 
