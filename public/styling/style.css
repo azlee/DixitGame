@@ -28,13 +28,37 @@ body {
     margin: auto;
 }
 
-#centerBoard {
+#players {
     width: 100%;
-    align-items: center;
-    margin: 2rem 0;
     display: flex;
     justify-content: center;
-    align-items: center;
+}
+
+.player {
+    flex-direction: column;
+    margin: 0 .25rem;
+}
+
+.player p {
+    margin: 0 0;
+}
+
+#players img {
+    padding-top: .5rem;
+    margin: 0 auto;
+    display: block;
+}
+
+#players .storyteller img {
+    -webkit-filter: drop-shadow(5px 5px 5px #1AC6FF);
+    filter: drop-shadow(5px 5px 5px #1AC6FF);
+}
+
+#centerBoard {
+    width: 100%;
+    margin: 0.5rem 0;
+    display: flex;
+    justify-content: center;
 }
 
 #centerBoard:after {

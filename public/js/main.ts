@@ -139,6 +139,17 @@ enum PlayerState {
   NOT_JUDGED_CARD,
 }
 
+enum Move {
+  // story teller submit card
+  STORY_TELLER_SUBMIT,
+}
+
+enum Instruction {
+  STORYTELLER = 'You are the storyteller! Select a card and clue.',
+  STORYTELLER_WAIT = 'Wait for other players to submit a card.',
+  PLAYERS_WAIT_STORYTELLER = '%s is the storyteller! Wait for them to submit a card & clue.',
+}
+
 interface Player {
   cardsInHand: string[];
   id: number;
@@ -205,12 +216,59 @@ function addDisableEnableButton() {
   function validateSubmitButton() {
     const isNameEntered = $('#clueBox').val().trim() !== '';
     const isCardSelected = $('input[type=radio]:checked').size() > 0;
-    $('#clueButton').prop('disabled', !isNameEntered || !isCardSelected);
+    $('#clueButton').prop('disabled', !isNameEntered || !isCardSelected || getPlayer(playerId).state === PlayerState.PLAYED_CLUE);
   }
 
+  $('input[type=radio]:checked').change(validateSubmitButton);
   $('#clueBox').on('keyup', validateSubmitButton);
   if (clueBox) {
     $('#clueBox').on('keyup', validateSubmitButton);
+  }
+}
+
+/**
+ * Apply a move
+ */
+function applyMove(move: Move) {
+  // Submit the storyteller's card & clue
+  const params: any = {};
+  if (move === Move.STORY_TELLER_SUBMIT) {
+    // get the selected card
+    let selectedCardIndex = 0;
+    const { cardsInHand } = getPlayer(playerId);
+    for (let i = 0; i < cardsInHand.length; i += 1) {
+      if (document.getElementById(`card-${i}`).checked) {
+        selectedCardIndex = i;
+        break;
+      }
+    }
+    params.cardNum = selectedCardIndex;
+    params.clue = document.getElementById('clueBox').value;
+  }
+  socket.emit('move', {
+    gameRoom: GAME_STATE.gameId,
+    params,
+    playerId,
+    move,
+  });
+}
+
+/**
+ * Render the instruction for the player
+ */
+function renderInstruction() {
+  const instructionDiv = document.getElementById('instruction');
+  const message: string = '';
+  if (GAME_STATE.gameStatus === GameStatus.WAITING_FOR_CLUE) {
+    if (playerId === GAME_STATE.storyteller) {
+      instructionDiv.innerHTML = Instruction.STORYTELLER;
+    } else {
+      instructionDiv.innerHTML = Instruction.PLAYERS_WAIT_STORYTELLER;
+    }
+  } else if (GAME_STATE.gameStatus === GameStatus.WAITING_FOR_CARDS) {
+    if (playerId === GAME_STATE.storyteller) {
+      instructionDiv.innerHTML = Instruction.STORYTELLER_WAIT;
+    }
   }
 }
 
@@ -221,6 +279,7 @@ function renderCardsInHand() {
   const isStoryTeller: boolean = GAME_STATE.storyteller === playerId;
   const { cardsInHand } = getPlayer(playerId);
   const cardBlock = document.getElementById('cardBlock');
+  cardBlock.innerHTML = '';
   for (let i = 0; i < cardsInHand.length; i += 1) {
     const card: string = cardsInHand[i];
     const checkBox = document.createElement('input');
@@ -252,10 +311,25 @@ function renderCardsInHand() {
     button.id = 'clueButton';
     button.innerHTML = 'Submit';
     const storyTellerClue = document.getElementById('storyTellerClue');
+    storyTellerClue.innerHTML = '';
+    // add event listener to submit button
+    button.addEventListener('click', () => {
+      applyMove(Move.STORY_TELLER_SUBMIT);
+    });
     storyTellerClue.append(clueLabel);
     storyTellerClue.append(clueBox);
     storyTellerClue.append(button);
     addDisableEnableButton();
+  }
+}
+
+/**
+ * Remove the clue box if the storyteller has submitted their clue & card
+ */
+function removeClueBox() {
+  const storyTellerClue = document.getElementById('storyTellerClue');
+  if (storyTellerClue && GAME_STATE.storyteller === playerId && getPlayer(playerId).state !== PlayerState.NOT_PLAYED_CLUE) {
+    storyTellerClue.remove();
   }
 }
 
@@ -270,10 +344,14 @@ function renderBoard(prevState: GameState) {
   if (cardHandChanged) {
     renderCardsInHand();
   }
+  renderInstruction();
+  removeClueBox();
 }
 
 function renderEntireBoard() {
   renderCardsInHand();
+  renderInstruction();
+  removeClueBox();
 }
 
 /** **************************************************************************

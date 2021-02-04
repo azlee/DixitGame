@@ -38,6 +38,10 @@ enum PlayerState {
   NOT_JUDGED_CARD,
 }
 
+enum Move {
+  STORY_TELLER_SUBMIT,
+}
+
 interface Player {
   cardsInHand: string[];
   id: number;
@@ -282,7 +286,6 @@ const CARDS: string[] = [
   'assets/imgs/81.png',
   'assets/imgs/82.png',
   'assets/imgs/83.png',
-  'assets/imgs/84.png',
   'assets/imgs/85.png',
   'assets/imgs/86.png',
   'assets/imgs/87.png',
@@ -350,10 +353,6 @@ function generateRoomCode(): string {
   return code;
 }
 
-// function getCards(roomId: string, numberCards: number): string[] {
-
-// }
-
 function initializeGameState(gameId): GameState {
   const gameState: GameState = {
     cards: shuffle(CARDS.slice()),
@@ -362,7 +361,7 @@ function initializeGameState(gameId): GameState {
     discardAnswers: [],
     storyteller: 1,
     gameId,
-    gameStatus: GameStatus.WAITING_FOR_ALL_PLAYERS,
+    gameStatus: GameStatus.WAITING_FOR_CLUE,
     numCardsPerPlayer: NUMBER_CARDS_PER_PLAYER,
     players: new Map<number, Player>(),
     playersStr: '',
@@ -383,12 +382,26 @@ function createGameRoom(): GameState {
   return gameState;
 }
 
+/**
+ * Shuffle and move all the discard cards back to the deck
+ * @param gameRoomCode game room code
+ */
+function moveDiscardPileToDeck(gameRoomCode: string) {
+  const discard: string[] = shuffle(GAME_ROOMS.get(gameRoomCode).discardAnswers.slice());
+  GAME_ROOMS.get(gameRoomCode).cards.concat(discard);
+  GAME_ROOMS.get(gameRoomCode).discardAnswers = [];
+}
+
 function getCards(gameRoomCode: string, numberCards: number) {
   const cards: string[] = [];
   const gameState: GameState = GAME_ROOMS.get(gameRoomCode);
   let numCards = numberCards;
   while (numCards > 0) {
-    cards.push(gameState.cards.pop());
+    const card: string = gameState.cards.pop();
+    if (card === null) {
+      moveDiscardPileToDeck(gameRoomCode);
+    }
+    cards.push(card);
     numCards -= 1;
   }
   return cards;
@@ -404,7 +417,7 @@ function createPlayer(gameRoomCode: string, name: string) {
     name,
     role,
     score: 0,
-    state: role === PlayerRole.STORYTELLER ? PlayerState.NOT_JUDGED_CARD
+    state: role === PlayerRole.STORYTELLER ? PlayerState.NOT_PLAYED_CLUE
       : PlayerState.NOT_PLAYED_CARD,
   };
   // add player to the game room
@@ -414,6 +427,31 @@ function createPlayer(gameRoomCode: string, name: string) {
 
 function addPlayerSocketIdToMap(socketId: string, gameRoomId: string, playerId: number) {
   SOCKETS_MAP.set(socketId, { playerId, gameRoomCode: gameRoomId });
+}
+
+function submitStorytellerCard(gameRoomId: string,
+  cardNum: number,
+  playerId: number,
+  clue: string) {
+  const gameState: GameState = GAME_ROOMS.get(gameRoomId);
+  const player: Player = gameState.players.get(playerId);
+  // put the card in the middle
+  gameState.answerCards.push(player.cardsInHand[cardNum]);
+  // replace the card that the storyplayer submitted with a new card
+  const newCards: string[] = getCards(gameRoomId, 1);
+  player.cardsInHand[cardNum] = newCards[0];
+  // move to next game state
+  gameState.gameStatus = GameStatus.WAITING_FOR_CARDS;
+  // set the player state
+  player.state = PlayerState.PLAYED_CLUE;
+}
+
+function applyMove(move: Move, gameRoomId: string, playerId: number, params: any) {
+  if (move === Move.STORY_TELLER_SUBMIT) {
+    // storyteller is submitting card & clue
+    submitStorytellerCard(gameRoomId, params.cardNum, playerId, params.clue);
+  }
+  sendStateUpdate(gameRoomId);
 }
 
 /** **************************************************************************
@@ -451,6 +489,12 @@ io.on('connection', (socket) => {
       console.error('create game failure');
       console.error(err);
     }
+  });
+
+  socket.on('move', (params) => {
+    console.log('params are');
+    console.log(params);
+    applyMove(Move.STORY_TELLER_SUBMIT, params.gameRoom, params.playerId, params.params);
   });
 });
 

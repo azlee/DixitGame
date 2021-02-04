@@ -1,3 +1,7 @@
 .DS_STORE
 public/assets/imgs/bash.sh
 node_modules/
+public/js/main.js
+public/js/main.js.map
+index.js
+index.js.map
