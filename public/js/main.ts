@@ -158,6 +158,7 @@ enum Instruction {
 interface Player {
   cardsInHand: string[];
   id: number;
+  img: string;
   name: string;
   role: PlayerRole,
   score: number,
@@ -443,6 +444,30 @@ function removeClueBox() {
 }
 
 /**
+ * Render the players and their names & cat images
+ */
+function renderPlayers() {
+  const players: Players[] = Array.from(GAME_STATE.players.values());
+  const playersDiv = document.getElementById('players');
+  playersDiv.innerHTML = '';
+  console.log('players is ');
+  console.log(players);
+  for (let i = 0; i < players.length; i += 1) {
+    const player = players[i];
+    console.log(player);
+    const playerDiv: HTMLElement = document.createElement('div');
+    playerDiv.className = 'player';
+    const img: HTMLElement = document.createElement('img');
+    img.src = player.img;
+    const name: HTMLElement = document.createElement('p');
+    name.innerHTML = player.name;
+    playerDiv.append(img);
+    playerDiv.append(name);
+    playersDiv.append(playerDiv);
+  }
+}
+
+/**
  * Render the entire board
  * Only render components where the game state has changed
  * @param: {GameState} - prevState previous game state
@@ -456,6 +481,7 @@ function renderBoard(prevState: GameState) {
   renderInstruction();
   removeClueBox();
   renderCardsInCenter();
+  renderPlayers();
 }
 
 function renderEntireBoard() {
@@ -466,6 +492,7 @@ function renderEntireBoard() {
   renderInstruction();
   removeClueBox();
   renderCardsInCenter();
+  renderPlayers();
 }
 
 /** **************************************************************************

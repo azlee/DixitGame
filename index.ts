@@ -47,6 +47,7 @@ enum Move {
 interface Player {
   cardsInHand: string[];
   id: number;
+  img: string;
   name: string;
   role: PlayerRole,
   score: number,
@@ -420,6 +421,7 @@ function createPlayer(gameRoomCode: string, name: string) {
   const player: Player = {
     cardsInHand: cards,
     id: gameState.players.size + 1,
+    img: 'assets/imgs/cat.png',
     name,
     role,
     score: 0,
@@ -480,10 +482,8 @@ function submitCard(gameRoomId: string, playerId: number, cardNum: string) {
   // move to next game state
   if (gameState.answerCards.length === gameState.players.size) {
     // if all players submitted card
-    console.log('state is waiting for judgin');
     gameState.gameStatus = GameStatus.WAITING_FOR_JUDGING;
   } else {
-    console.log('state is waiting for cards');
     gameState.gameStatus = GameStatus.WAITING_FOR_CARDS;
   }
   // set the player state
@@ -491,7 +491,6 @@ function submitCard(gameRoomId: string, playerId: number, cardNum: string) {
 }
 
 function applyMove(move: Move, gameRoomId: string, playerId: number, params: any) {
-  console.log(`move is ${Move[move]}`);
   if (move === Move.STORY_TELLER_SUBMIT) {
     // storyteller is submitting card & clue
     submitStorytellerCard(gameRoomId, params.cardNum, playerId, params.clue);
@@ -552,8 +551,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('move', (params) => {
-    console.log('params are');
-    console.log(params);
     applyMove(params.move, params.gameRoom, params.playerId, params.params);
   });
 });
