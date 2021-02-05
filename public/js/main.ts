@@ -394,7 +394,8 @@ function renderCardsInHand() {
     for (let i = 0; i < cardsInHand.length; i += 1) {
       const imgDoc: HTMLElement = document.getElementById(`card-img-${i}`);
       // only change the card that changed src
-      if (cardsInHand[i] !== imgDoc.src) {
+      if (cardsInHand[i] !== `../${imgDoc.src}`) {
+        console.log(`change card ${i}`);
         imgDoc.src = cardsInHand[i];
       }
     }

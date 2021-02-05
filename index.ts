@@ -89,222 +89,7 @@ const GAME_ROOMS = new Map<String, GameState>();
 // Map of all connected sockets
 const SOCKETS_MAP = new Map<String, PlayerGame>();
 
-const CARDS: string[] = [
-  'assets/imgs/1.png',
-  'assets/imgs/10.jpg',
-  'assets/imgs/100.png',
-  'assets/imgs/101.png',
-  'assets/imgs/102.png',
-  'assets/imgs/103.png',
-  'assets/imgs/105.png',
-  'assets/imgs/106.png',
-  'assets/imgs/107.png',
-  'assets/imgs/108.png',
-  'assets/imgs/109.png',
-  'assets/imgs/11.jpg',
-  'assets/imgs/110.png',
-  'assets/imgs/111.png',
-  'assets/imgs/112.png',
-  'assets/imgs/113.png',
-  'assets/imgs/114.png',
-  'assets/imgs/115.png',
-  'assets/imgs/116.png',
-  'assets/imgs/117.png',
-  'assets/imgs/118.png',
-  'assets/imgs/119.png',
-  'assets/imgs/12.jpg',
-  'assets/imgs/120.png',
-  'assets/imgs/121.png',
-  'assets/imgs/122.png',
-  'assets/imgs/123.png',
-  'assets/imgs/124.png',
-  'assets/imgs/125.png',
-  'assets/imgs/126.png',
-  'assets/imgs/127.png',
-  'assets/imgs/128.png',
-  'assets/imgs/129.png',
-  'assets/imgs/13.jpg',
-  'assets/imgs/130.png',
-  'assets/imgs/131.png',
-  'assets/imgs/132.png',
-  'assets/imgs/133.jpg',
-  'assets/imgs/134.jpg',
-  'assets/imgs/135.jpg',
-  'assets/imgs/136.jpg',
-  'assets/imgs/137.jpg',
-  'assets/imgs/138.jpg',
-  'assets/imgs/139.jpg',
-  'assets/imgs/14.jpg',
-  'assets/imgs/140.jpg',
-  'assets/imgs/141.jpg',
-  'assets/imgs/142.jpg',
-  'assets/imgs/143.jpg',
-  'assets/imgs/144.jpg',
-  'assets/imgs/145.jpg',
-  'assets/imgs/146.jpg',
-  'assets/imgs/147.jpg',
-  'assets/imgs/148.jpg',
-  'assets/imgs/149.jpg',
-  'assets/imgs/15.jpg',
-  'assets/imgs/150.jpg',
-  'assets/imgs/151.jpg',
-  'assets/imgs/152.jpg',
-  'assets/imgs/153.jpg',
-  'assets/imgs/155.jpg',
-  'assets/imgs/156.jpg',
-  'assets/imgs/157.jpg',
-  'assets/imgs/158.jpg',
-  'assets/imgs/159.jpg',
-  'assets/imgs/16.jpg',
-  'assets/imgs/160.jpg',
-  'assets/imgs/161.jpg',
-  'assets/imgs/162.jpg',
-  'assets/imgs/163.jpg',
-  'assets/imgs/164.jpg',
-  'assets/imgs/165.jpg',
-  'assets/imgs/166.jpg',
-  'assets/imgs/167.jpg',
-  'assets/imgs/168.jpg',
-  'assets/imgs/169.jpg',
-  'assets/imgs/17.jpg',
-  'assets/imgs/170.jpg',
-  'assets/imgs/171.jpg',
-  'assets/imgs/172.jpg',
-  'assets/imgs/173.jpg',
-  'assets/imgs/174.jpg',
-  'assets/imgs/175.jpg',
-  'assets/imgs/176.jpg',
-  'assets/imgs/177.jpg',
-  'assets/imgs/178.jpg',
-  'assets/imgs/179.jpg',
-  'assets/imgs/18.jpg',
-  'assets/imgs/180.jpg',
-  'assets/imgs/181.jpg',
-  'assets/imgs/182.jpg',
-  'assets/imgs/183.jpg',
-  'assets/imgs/184.jpg',
-  'assets/imgs/185.jpg',
-  'assets/imgs/186.jpg',
-  'assets/imgs/187.jpg',
-  'assets/imgs/188.jpg',
-  'assets/imgs/189.jpg',
-  'assets/imgs/19.jpg',
-  'assets/imgs/190.jpg',
-  'assets/imgs/191.jpg',
-  'assets/imgs/192.jpg',
-  'assets/imgs/193.jpg',
-  'assets/imgs/194.jpg',
-  'assets/imgs/195.jpg',
-  'assets/imgs/196.jpg',
-  'assets/imgs/197.jpg',
-  'assets/imgs/198.jpg',
-  'assets/imgs/199.jpg',
-  'assets/imgs/2.png',
-  'assets/imgs/20.jpg',
-  'assets/imgs/200.jpg',
-  'assets/imgs/201.jpg',
-  'assets/imgs/202.jpg',
-  'assets/imgs/203.jpg',
-  'assets/imgs/204.jpg',
-  'assets/imgs/205.jpg',
-  'assets/imgs/206.jpg',
-  'assets/imgs/207.jpg',
-  'assets/imgs/208.jpg',
-  'assets/imgs/209.jpg',
-  'assets/imgs/21.jpg',
-  'assets/imgs/210.jpg',
-  'assets/imgs/211.jpg',
-  'assets/imgs/212.jpg',
-  'assets/imgs/213.jpg',
-  'assets/imgs/214.jpg',
-  'assets/imgs/215.jpg',
-  'assets/imgs/216.jpg',
-  'assets/imgs/217.jpg',
-  'assets/imgs/218.jpg',
-  'assets/imgs/219.jpg',
-  'assets/imgs/22.jpg',
-  'assets/imgs/220.jpg',
-  'assets/imgs/221.jpg',
-  'assets/imgs/222.jpg',
-  'assets/imgs/223.jpg',
-  'assets/imgs/224.jpg',
-  'assets/imgs/225.jpg',
-  'assets/imgs/23.jpg',
-  'assets/imgs/24.jpeg',
-  'assets/imgs/25.jpg',
-  'assets/imgs/26.jpg',
-  'assets/imgs/27.jpeg',
-  'assets/imgs/28.jpg',
-  'assets/imgs/29.jpg',
-  'assets/imgs/3.png',
-  'assets/imgs/30.jpg',
-  'assets/imgs/31.png',
-  'assets/imgs/32.png',
-  'assets/imgs/33.jpg',
-  'assets/imgs/34.jpg',
-  'assets/imgs/35.jpg',
-  'assets/imgs/37.jpeg',
-  'assets/imgs/39.png',
-  'assets/imgs/4.png',
-  'assets/imgs/40.jpg',
-  'assets/imgs/41.jpg',
-  'assets/imgs/42.png',
-  'assets/imgs/43.jpg',
-  'assets/imgs/44.jpeg',
-  'assets/imgs/45.png',
-  'assets/imgs/46.png',
-  'assets/imgs/47.jpeg',
-  'assets/imgs/48.jpg',
-  'assets/imgs/49.jpg',
-  'assets/imgs/5.png',
-  'assets/imgs/50.jpg',
-  'assets/imgs/51.jpg',
-  'assets/imgs/52.jpg',
-  'assets/imgs/54.jpg',
-  'assets/imgs/55.jpg',
-  'assets/imgs/56.jpg',
-  'assets/imgs/57.jpg',
-  'assets/imgs/58.jpg',
-  'assets/imgs/59.jpeg',
-  'assets/imgs/6.png',
-  'assets/imgs/60.jpg',
-  'assets/imgs/61.jpg',
-  'assets/imgs/62.jpg',
-  'assets/imgs/64.jpg',
-  'assets/imgs/65.jpg',
-  'assets/imgs/66.png',
-  'assets/imgs/67.png',
-  'assets/imgs/68.png',
-  'assets/imgs/69.png',
-  'assets/imgs/70.png',
-  'assets/imgs/71.png',
-  'assets/imgs/73.png',
-  'assets/imgs/74.png',
-  'assets/imgs/75.png',
-  'assets/imgs/76.png',
-  'assets/imgs/77.png',
-  'assets/imgs/78.png',
-  'assets/imgs/79.png',
-  'assets/imgs/8.jpg',
-  'assets/imgs/80.png',
-  'assets/imgs/81.png',
-  'assets/imgs/82.png',
-  'assets/imgs/83.png',
-  'assets/imgs/85.png',
-  'assets/imgs/86.png',
-  'assets/imgs/87.png',
-  'assets/imgs/88.png',
-  'assets/imgs/89.png',
-  'assets/imgs/90.png',
-  'assets/imgs/91.png',
-  'assets/imgs/92.png',
-  'assets/imgs/93.png',
-  'assets/imgs/94.png',
-  'assets/imgs/95.png',
-  'assets/imgs/96.png',
-  'assets/imgs/97.png',
-  'assets/imgs/98.png',
-];
+const NUM_CARDS = 220;
 
 const NUMBER_CARDS_PER_PLAYER = 6;
 
@@ -315,6 +100,25 @@ const MAX_NUMBER_PLAYERS = 8;
  * Utility functions
  *
  *************************************************************************** */
+
+function getCard(index : number) : string | undefined {
+  if (index < 1 || index > 220) {
+    return undefined;
+  }
+
+  return `assets/imgs/${index}.png`;
+}
+
+/**
+ * Get All cards in the deck
+ */
+function getAllCards(): string[] {
+  const cards: string[] = [];
+  for (let i = 1; i <= NUM_CARDS; i += 1) {
+    cards.push(getCard(i));
+  }
+  return cards;
+}
 
 /**
 * Randomly shuffle an array
@@ -358,9 +162,19 @@ function generateRoomCode(): string {
   return 'AAAA';
 }
 
+function getShuffledCards() : string[] {
+  const array = new Array(NUM_CARDS);
+  for (let i = 0; i < NUM_CARDS; i += 1) {
+    array.push(getCard(i + 1));
+  }
+  const arr = shuffle(array);
+  console.log(arr);
+  return arr;
+}
+
 function initializeGameState(gameId): GameState {
   const gameState: GameState = {
-    cards: shuffle(CARDS.slice()),
+    cards: shuffle(getAllCards().slice()),
     clue: '',
     // cards in play (in center)
     answerCards: [],
@@ -427,6 +241,7 @@ function createPlayer(gameRoomCode: string, name: string) {
     score: 0,
     state: role === PlayerRole.STORYTELLER ? PlayerState.NOT_PLAYED_CLUE
       : PlayerState.NOT_PLAYED_CARD,
+    submittedCard: '',
   };
   // add player to the game room
   gameState.players.set(player.id, player);
@@ -545,8 +360,7 @@ io.on('connection', (socket) => {
         io.to(socket.id).emit(gameState.gameId, { joinGameSuccess: true, playerId: player.id });
       }
     } catch (err) {
-      console.error('create game failure');
-      console.error(err);
+      console.error(`create game failure${err}`);
     }
   });
 
