@@ -55,7 +55,6 @@ body {
 
 #centerBoard {
     width: 100%;
-    margin: 0.5rem 0;
     display: flex;
     justify-content: center;
 }
@@ -127,6 +126,7 @@ input[type=radio]:checked + .card {
     display: block;
     max-width: 100%;
     max-height: 100%;
+    border-radius: 1rem;
 }
 
 #playerCards .card:hover {
@@ -159,6 +159,28 @@ input[type=radio]:checked + .card {
     color: #ffffff;
     cursor: pointer;
     font-weight: bold;
+}
+
+#instruction button {
+    background-color: #1a8cff;
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 0.25rem;
+    padding: 0.5rem 0.5rem;
+}
+
+#instruction button:disabled {
+    background-color: #80bfff;
+}
+
+#instruction button:disabled:hover {
+    background-color: #80bfff;
+}
+
+#instruction button:hover {
+    background-color: #0066cc;
+    transition: 0.2s;
 }
 
 #storyTellerClue button:disabled {

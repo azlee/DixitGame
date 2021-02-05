@@ -142,12 +142,17 @@ enum PlayerState {
 enum Move {
   // story teller submit card
   STORY_TELLER_SUBMIT,
+  // non story teller submit card
+  PLAYER_SUBMIT_CARD,
 }
 
 enum Instruction {
   STORYTELLER = 'You are the storyteller! Select a card and clue and submit.',
   STORYTELLER_WAIT = 'Thanks! Wait for other players to submit a card.',
+  STORYTELLER_WAIT_JUDGE = 'Wait until all the players vote for a card that they think is yours.',
   PLAYERS_WAIT_STORYTELLER = '%s is the storyteller! Wait for them to submit a card & clue.',
+  PLAYERS_SUBMIT_CARD = '%s submitted a card with clue %c. <br>Submit a card that best matches that.',
+  PLAYERS_JUDGE_CARD = 'Choose the card above that you think is %s\'s - their clue was %c'
 }
 
 interface Player {
@@ -163,6 +168,7 @@ interface Player {
   cards: string[];
   // cards in play (in center)
   answerCards: string[];
+  clue: string;
   discardAnswers: string[];
   storyteller: number; // storyteller index
   gameId: string;
@@ -171,11 +177,13 @@ interface Player {
   players: Map<number, Player>;
   playersStr: string;
   roundNum: number;
+  storytellerCard: string;
   winnerCard: string;
 }
 
 let GAME_STATE: GameState = {
   cards: [],
+  clue: '',
   answerCards: [],
   discardAnswers: [],
   storyteller: null,
@@ -185,6 +193,7 @@ let GAME_STATE: GameState = {
   players: new Map(),
   playersStr: null,
   roundNum: 1,
+  storytellerCard: '',
   winnerCard: null,
 };
 
@@ -229,16 +238,33 @@ function addDisableEnableButton() {
 }
 
 /**
+ * Enable or disable submit button for non storytellers
+ */
+function addDisableEnableSubmitButton() {
+  $('#submitCardButton').prop('disabled', true);
+
+  function validateSubmitButton() {
+    const isCardSelected = $('input[type=radio]:checked').size() > 0;
+    $('#submitCardButton').prop('disabled', !isCardSelected);
+  }
+
+  validateSubmitButton();
+  $('input[type=radio]').on('change', validateSubmitButton);
+}
+
+/**
  * Apply a move
  */
 function applyMove(move: Move) {
+  console.log(`move is ${Move[move]}`);
   // Submit the storyteller's card & clue
   const params: any = {};
   if (move === Move.STORY_TELLER_SUBMIT) {
     // get the selected card
     let selectedCardIndex = 0;
     const { cardsInHand } = getPlayer(playerId);
-    for (let i = 0; i < cardsInHand.length; i += 1) {
+    let i = 0;
+    for (; i < cardsInHand.length; i += 1) {
       if (document.getElementById(`card-${i}`).checked) {
         selectedCardIndex = i;
         break;
@@ -246,6 +272,23 @@ function applyMove(move: Move) {
     }
     params.cardNum = selectedCardIndex;
     params.clue = document.getElementById('clueBox').value;
+    // clear radio card selection
+    document.getElementById(`card-${i}`).checked = false;
+  } else if (move === Move.PLAYER_SUBMIT_CARD) {
+    console.log('player submit card');
+    // get the selected card
+    let selectedCardIndex = 0;
+    const { cardsInHand } = getPlayer(playerId);
+    let i = 0;
+    for (; i < cardsInHand.length; i += 1) {
+      if (document.getElementById(`card-${i}`).checked) {
+        selectedCardIndex = i;
+        break;
+      }
+    }
+    params.cardNum = selectedCardIndex;
+    // clear radio card selection
+    document.getElementById(`card-${i}`).checked = false;
   }
   socket.emit('move', {
     gameRoom: GAME_STATE.gameId,
@@ -260,16 +303,33 @@ function applyMove(move: Move) {
  */
 function renderInstruction() {
   const instructionDiv = document.getElementById('instruction');
-  const message: string = '';
   if (GAME_STATE.gameStatus === GameStatus.WAITING_FOR_CLUE) {
     if (playerId === GAME_STATE.storyteller) {
       instructionDiv.innerHTML = Instruction.STORYTELLER;
     } else {
-      instructionDiv.innerHTML = Instruction.PLAYERS_WAIT_STORYTELLER;
+      instructionDiv.innerHTML = Instruction.PLAYERS_WAIT_STORYTELLER.replace('%s', getPlayer(GAME_STATE.storyteller).name);
     }
   } else if (GAME_STATE.gameStatus === GameStatus.WAITING_FOR_CARDS) {
     if (playerId === GAME_STATE.storyteller) {
       instructionDiv.innerHTML = Instruction.STORYTELLER_WAIT;
+    } else {
+      instructionDiv.innerHTML = Instruction.PLAYERS_SUBMIT_CARD.replace('%s', getPlayer(GAME_STATE.storyteller).name)
+        .replace('%c', `<span style="text-decoration:underline; font-weight:bold">${GAME_STATE.clue}</span>`);
+      const button: HTMLInputElement = document.createElement('button');
+      button.id = 'submitCardButton';
+      button.innerHTML = 'Submit';
+      button.addEventListener('click', () => {
+        applyMove(Move.PLAYER_SUBMIT_CARD);
+      });
+      instructionDiv.append(button);
+      addDisableEnableSubmitButton();
+    }
+  } else if (GAME_STATE.gameStatus === GameStatus.WAITING_FOR_JUDGING) {
+    if (playerId === GAME_STATE.storyteller) {
+      instructionDiv.innerHTML = Instruction.STORYTELLER_WAIT_JUDGE;
+    } else {
+      instructionDiv.innerHTML = Instruction.PLAYERS_JUDGE_CARD.replace('%s', getPlayer(GAME_STATE.storyteller).name)
+        .replace('%c', `<span style="text-decoration:underline; font-weight:bold">${GAME_STATE.clue}</span>`);
     }
   }
 }
@@ -291,15 +351,17 @@ function renderStoryTellerClue() {
   button.id = 'clueButton';
   button.innerHTML = 'Submit';
   const storyTellerClue = document.getElementById('storyTellerClue');
-  storyTellerClue.innerHTML = '';
-  // add event listener to submit button
-  button.addEventListener('click', () => {
-    applyMove(Move.STORY_TELLER_SUBMIT);
-  });
-  storyTellerClue.append(clueLabel);
-  storyTellerClue.append(clueBox);
-  storyTellerClue.append(button);
-  addDisableEnableButton();
+  if (storyTellerClue) {
+    storyTellerClue.innerHTML = '';
+    // add event listener to submit button
+    button.addEventListener('click', () => {
+      applyMove(Move.STORY_TELLER_SUBMIT);
+    });
+    storyTellerClue.append(clueLabel);
+    storyTellerClue.append(clueBox);
+    storyTellerClue.append(button);
+    addDisableEnableButton();
+  }
 }
 
 /**
@@ -365,7 +427,7 @@ function renderCardsInCenter() {
     // to do - add imgs and radio selector
     const imgDoc = document.getElementById(`card-img-${i}`);
     const cardLocation = GAME_STATE.answerCards[i];
-    imgDoc.src = allPlayersPlayed ? '../assets/imgs/back.png' : `../${cardLocation}`;
+    imgDoc.src = !allPlayersPlayed ? '../assets/imgs/back.png' : `../${cardLocation}`;
   }
 }
 
@@ -397,6 +459,9 @@ function renderBoard(prevState: GameState) {
 }
 
 function renderEntireBoard() {
+  console.log('player is ');
+  console.log(getPlayer(playerId));
+  if (getPlayer(playerId) === undefined) return;
   renderCardsInHand();
   renderInstruction();
   removeClueBox();
@@ -414,6 +479,8 @@ const socket = io();
 
 function listenToRoomNotifications(roomCode: string) {
   socket.on(roomCode, (msg: any) => {
+    console.log('message is ');
+    console.log(msg);
     if (msg.state) {
       const prevGameState: GameState = { ...GAME_STATE };
       GAME_STATE = msg.state;
@@ -425,7 +492,9 @@ function listenToRoomNotifications(roomCode: string) {
       renderEntireBoard();
     }
     if (msg.joinGameSuccess) {
+      console.log('join game success');
       playerId = msg.playerId;
+      renderEntireBoard();
     }
   });
 }
@@ -441,3 +510,4 @@ function createGame(name, numPlayers) {
 }
 
 createGame('amberTest', 2);
+listenToRoomNotifications('AAAA');

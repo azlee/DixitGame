@@ -40,6 +40,8 @@ enum PlayerState {
 
 enum Move {
   STORY_TELLER_SUBMIT,
+  // non story teller submit card
+  PLAYER_SUBMIT_CARD,
 }
 
 interface Player {
@@ -49,11 +51,13 @@ interface Player {
   role: PlayerRole,
   score: number,
   state: PlayerState,
+  submittedCard: string;
 }
 
 interface GameState {
   cards: string[];
-  // cards in play (in center)
+  clue: string;
+  // cards in play (in the center)
   answerCards: string[];
   discardAnswers: string[];
   storyteller: number; // storyteller index
@@ -63,6 +67,7 @@ interface GameState {
   players: Map<number, Player>;
   playersStr: string;
   roundNum: number;
+  storytellerCard: string;
   winnerCard: string;
 }
 
@@ -144,7 +149,6 @@ const CARDS: string[] = [
   'assets/imgs/151.jpg',
   'assets/imgs/152.jpg',
   'assets/imgs/153.jpg',
-  'assets/imgs/154.jpg',
   'assets/imgs/155.jpg',
   'assets/imgs/156.jpg',
   'assets/imgs/157.jpg',
@@ -349,12 +353,14 @@ function generateRoomCode(): string {
   if (GAME_ROOMS.get(code)) {
     return generateRoomCode();
   }
-  return code;
+  // return code;
+  return 'AAAA';
 }
 
 function initializeGameState(gameId): GameState {
   const gameState: GameState = {
     cards: shuffle(CARDS.slice()),
+    clue: '',
     // cards in play (in center)
     answerCards: [],
     discardAnswers: [],
@@ -365,6 +371,7 @@ function initializeGameState(gameId): GameState {
     players: new Map<number, Player>(),
     playersStr: '',
     roundNum: 1,
+    storytellerCard: '',
     winnerCard: null,
   };
   return gameState;
@@ -428,6 +435,13 @@ function addPlayerSocketIdToMap(socketId: string, gameRoomId: string, playerId: 
   SOCKETS_MAP.set(socketId, { playerId, gameRoomCode: gameRoomId });
 }
 
+/**
+ * Submit story teller card & clue
+ * @param gameRoomId game room id
+ * @param cardNum card num
+ * @param playerId player id
+ * @param clue clue from storyteller
+ */
 function submitStorytellerCard(gameRoomId: string,
   cardNum: number,
   playerId: number,
@@ -436,19 +450,53 @@ function submitStorytellerCard(gameRoomId: string,
   const player: Player = gameState.players.get(playerId);
   // put the card in the middle
   gameState.answerCards.push(player.cardsInHand[cardNum]);
+  // set the card
+  gameState.storytellerCard = player.cardsInHand[cardNum];
   // replace the card that the storyplayer submitted with a new card
   const newCards: string[] = getCards(gameRoomId, 1);
   player.cardsInHand[cardNum] = newCards[0];
   // move to next game state
   gameState.gameStatus = GameStatus.WAITING_FOR_CARDS;
+  // set the clue
+  gameState.clue = clue;
+  // set the player state
+  player.state = PlayerState.PLAYED_CLUE;
+}
+
+/**
+ * Submit card from non story teller
+ * @param gameRoomId game room id
+ * @param playerId player id
+ * @param cardNum card number
+ */
+function submitCard(gameRoomId: string, playerId: number, cardNum: string) {
+  const gameState: GameState = GAME_ROOMS.get(gameRoomId);
+  const player: Player = gameState.players.get(playerId);
+  // put the card in the middle
+  gameState.answerCards.push(player.cardsInHand[cardNum]);
+  // replace the card that the player submitted with a new card
+  const newCards: string[] = getCards(gameRoomId, 1);
+  player.cardsInHand[cardNum] = newCards[0];
+  // move to next game state
+  if (gameState.answerCards.length === gameState.players.size) {
+    // if all players submitted card
+    console.log('state is waiting for judgin');
+    gameState.gameStatus = GameStatus.WAITING_FOR_JUDGING;
+  } else {
+    console.log('state is waiting for cards');
+    gameState.gameStatus = GameStatus.WAITING_FOR_CARDS;
+  }
   // set the player state
   player.state = PlayerState.PLAYED_CLUE;
 }
 
 function applyMove(move: Move, gameRoomId: string, playerId: number, params: any) {
+  console.log(`move is ${Move[move]}`);
   if (move === Move.STORY_TELLER_SUBMIT) {
     // storyteller is submitting card & clue
     submitStorytellerCard(gameRoomId, params.cardNum, playerId, params.clue);
+  } else if (move === Move.PLAYER_SUBMIT_CARD) {
+    submitCard(gameRoomId, playerId, params.cardNum);
   }
   sendStateUpdate(gameRoomId);
 }
@@ -475,15 +523,28 @@ io.on('connection', (socket) => {
   socket.on('createGame', (param) => {
     try {
       // create game
-      const gameState: GameState = createGameRoom();
-      // create player and add to gameRoom
-      const player = createPlayer(gameState.gameId, param.name);
-      // add player to socket map
-      addPlayerSocketIdToMap(socket.id, gameState.gameId, player.id);
-      console.log(`created game room ${gameState.gameId}`);
-      io.to(socket.id).emit('createGameSuccess', gameState.gameId);
-      sendStateUpdate(gameState.gameId);
-      // create new player
+      // TODO: allow more than one game and do socket.on('joinGame')
+      if (GAME_ROOMS.size === 0) {
+        const gameState: GameState = createGameRoom();
+        // create player and add to gameRoom
+        const player: Player = createPlayer(gameState.gameId, param.name);
+        // add player to socket map
+        addPlayerSocketIdToMap(socket.id, gameState.gameId, player.id);
+        console.log(`created game room ${gameState.gameId}`);
+        io.to(socket.id).emit('createGameSuccess', gameState.gameId);
+        sendStateUpdate(gameState.gameId);
+      } else {
+        console.log('join game success');
+        const gameState: GameState = GAME_ROOMS.values().next().value;
+        // create new player and add to existing game room
+        const player: Player = createPlayer(gameState.gameId, param.name);
+        // add player to socket map
+        addPlayerSocketIdToMap(socket.id, gameState.gameId, player.id);
+        // send state update
+        sendStateUpdate(gameState.gameId);
+        // send player their player id as sign that they've joined successfully
+        io.to(socket.id).emit(gameState.gameId, { joinGameSuccess: true, playerId: player.id });
+      }
     } catch (err) {
       console.error('create game failure');
       console.error(err);
@@ -493,7 +554,7 @@ io.on('connection', (socket) => {
   socket.on('move', (params) => {
     console.log('params are');
     console.log(params);
-    applyMove(Move.STORY_TELLER_SUBMIT, params.gameRoom, params.playerId, params.params);
+    applyMove(params.move, params.gameRoom, params.playerId, params.params);
   });
 });
 
