@@ -276,7 +276,6 @@ function applyMove(move: Move) {
     // clear radio card selection
     document.getElementById(`card-${i}`).checked = false;
   } else if (move === Move.PLAYER_SUBMIT_CARD) {
-    console.log('player submit card');
     // get the selected card
     let selectedCardIndex = 0;
     const { cardsInHand } = getPlayer(playerId);
@@ -450,16 +449,16 @@ function renderPlayers() {
   const players: Players[] = Array.from(GAME_STATE.players.values());
   const playersDiv = document.getElementById('players');
   playersDiv.innerHTML = '';
-  console.log('players is ');
-  console.log(players);
   for (let i = 0; i < players.length; i += 1) {
     const player = players[i];
-    console.log(player);
     const playerDiv: HTMLElement = document.createElement('div');
+    playerDiv.id = `player-${i}`;
     playerDiv.className = 'player';
     const img: HTMLElement = document.createElement('img');
+    img.id = `player-img-${i}`;
     img.src = player.img;
     const name: HTMLElement = document.createElement('p');
+    name.id = `player-name-${i}`;
     name.innerHTML = player.name;
     playerDiv.append(img);
     playerDiv.append(name);
