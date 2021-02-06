@@ -129,16 +129,13 @@ input[type=radio]:checked + .card {
     border-radius: 1rem;
 }
 
-#playerCards .card:hover {
-    box-shadow: 0 0 50px #666666;
-}
-
 #playerCards label img {
     min-width: 100%;
     min-height: 100%;
 }
 
 #playerCards .card:hover {
+    box-shadow: 0 0 50px #666666;
     transform: scale(1.35);
     z-index: 100;
 }

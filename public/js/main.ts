@@ -418,15 +418,20 @@ function renderCardsInCenter() {
     const imgDoc = document.createElement('img');
     imgDoc.id = `card-center-img-${i}`;
     imgDoc.src = '../assets/imgs/placeholder.png';
+    imgDoc.style.cursor = 'default';
     placeholder.append(imgDoc);
     centerBoard.append(placeholder);
   }
   // replace placeholders
   for (let i = 0; i < GAME_STATE.answerCards.length; i += 1) {
     // to do - add imgs and radio selector
-    const imgDoc = document.getElementById(`card-img-${i}`);
+    const imgDoc = document.getElementById(`card-center-img-${i}`);
     const cardLocation = GAME_STATE.answerCards[i];
     imgDoc.src = !allPlayersPlayed ? '../assets/imgs/back.png' : `../${cardLocation}`;
+    // if all players played then add cursor pointer to cards
+    if (allPlayersPlayed) {
+      imgDoc.style.cursor = 'pointer';
+    }
   }
 }
 
