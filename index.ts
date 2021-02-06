@@ -297,6 +297,8 @@ function submitCard(gameRoomId: string, playerId: number, cardNum: string) {
   const player: Player = gameState.players.get(playerId);
   // put the card in the middle
   gameState.answerCards.push(player.cardsInHand[cardNum]);
+  // mark the player's submitted card
+  player.submittedCard = player.cardsInHand[cardNum];
   // replace the card that the player submitted with a new card
   const newCards: string[] = getCards(gameRoomId, 1);
   player.cardsInHand[cardNum] = newCards[0];

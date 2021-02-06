@@ -423,13 +423,17 @@ function renderCardsInCenter() {
     centerBoard.append(placeholder);
   }
   // replace placeholders
+  const player: Player = getPlayer(playerId);
+  const playerCard: string = player.submittedCard;
   for (let i = 0; i < GAME_STATE.answerCards.length; i += 1) {
     // to do - add imgs and radio selector
     const imgDoc = document.getElementById(`card-center-img-${i}`);
     const cardLocation = GAME_STATE.answerCards[i];
+    console.log(`cardLocation is ${cardLocation}`);
+    console.log(`playerCard is ${playerCard}`);
     imgDoc.src = !allPlayersPlayed ? '../assets/imgs/back.png' : `../${cardLocation}`;
     // if all players played then add cursor pointer to cards if not the card the player chose
-    if (allPlayersPlayed && GAME_STATE.storyteller !== playerId) {
+    if (allPlayersPlayed && GAME_STATE.storyteller !== playerId && cardLocation !== playerCard) {
       imgDoc.style.cursor = 'pointer';
     }
   }
