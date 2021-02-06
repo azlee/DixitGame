@@ -101,11 +101,15 @@ const MAX_NUMBER_PLAYERS = 8;
  *
  *************************************************************************** */
 
+/**
+  * Get the card at index i
+  * (card imgs are numbered 1 to 220)
+  * @param index
+  */
 function getCard(index : number) : string | undefined {
   if (index < 1 || index > 220) {
     return undefined;
   }
-
   return `assets/imgs/${index}.png`;
 }
 
@@ -162,6 +166,10 @@ function generateRoomCode(): string {
   return 'AAAA';
 }
 
+/**
+ * Initialize game state and return it
+ * @param gameId
+ */
 function initializeGameState(gameId): GameState {
   const gameState: GameState = {
     cards: shuffle(getAllCards().slice()),
@@ -203,6 +211,11 @@ function moveDiscardPileToDeck(gameRoomCode: string) {
   GAME_ROOMS.get(gameRoomCode).discardAnswers = [];
 }
 
+/**
+ * Pull numberCards cards from the card deck for the game
+ * @param gameRoomCode game room code
+ * @param numberCards number of cards to pull from the deck
+ */
 function getCards(gameRoomCode: string, numberCards: number) {
   const cards: string[] = [];
   const gameState: GameState = GAME_ROOMS.get(gameRoomCode);
@@ -218,7 +231,10 @@ function getCards(gameRoomCode: string, numberCards: number) {
   return cards;
 }
 
-function createPlayer(gameRoomCode: string, name: string) {
+/**
+ * Create a player for the game and return it
+ */
+function createPlayer(gameRoomCode: string, name: string): Player {
   const gameState: GameState = GAME_ROOMS.get(gameRoomCode);
   const role = gameState.players.size === 0 ? PlayerRole.STORYTELLER : PlayerRole.PLAYER;
   const cards: string[] = getCards(gameRoomCode, NUMBER_CARDS_PER_PLAYER);
@@ -297,6 +313,13 @@ function submitCard(gameRoomId: string, playerId: number, cardNum: string) {
   player.state = PlayerState.PLAYED_CLUE;
 }
 
+/**
+ * Apply the move
+ * @param move
+ * @param gameRoomId
+ * @param playerId
+ * @param params
+ */
 function applyMove(move: Move, gameRoomId: string, playerId: number, params: any) {
   if (move === Move.STORY_TELLER_SUBMIT) {
     // storyteller is submitting card & clue
@@ -313,6 +336,10 @@ function applyMove(move: Move, gameRoomId: string, playerId: number, params: any
  *
  *************************************************************************** */
 
+/**
+  * Send game state update to the game room
+  * @param gameRoomCode
+  */
 function sendStateUpdate(gameRoomCode: string) {
   const gameState: GameState = GAME_ROOMS.get(gameRoomCode);
   if (gameState) {
