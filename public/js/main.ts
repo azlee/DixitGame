@@ -428,8 +428,8 @@ function renderCardsInCenter() {
     const imgDoc = document.getElementById(`card-center-img-${i}`);
     const cardLocation = GAME_STATE.answerCards[i];
     imgDoc.src = !allPlayersPlayed ? '../assets/imgs/back.png' : `../${cardLocation}`;
-    // if all players played then add cursor pointer to cards
-    if (allPlayersPlayed) {
+    // if all players played then add cursor pointer to cards if not the card the player chose
+    if (allPlayersPlayed && GAME_STATE.storyteller !== playerId) {
       imgDoc.style.cursor = 'pointer';
     }
   }
