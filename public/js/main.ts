@@ -216,8 +216,6 @@ function getPlayer(id: number): Player {
   return GAME_STATE.players.get(id);
 }
 
-// TODO: first card is not selectable..
-
 /**
  * Enable or disable submit button for storyteller clue
  */
@@ -377,9 +375,10 @@ function renderCardsInHand() {
       const checkBox: HTMLInputElement = document.createElement('input');
       checkBox.type = 'radio';
       checkBox.name = 'selectedCard';
-      checkBox.id = `card-${i}`;
+      const checkBoxId = `card-${i}`;
+      checkBox.id = checkBoxId;
       const label = document.createElement('label');
-      label.htmlFor = `card-${i}`;
+      label.htmlFor = checkBoxId;
       const cardDoc = document.createElement('div');
       cardDoc.className = 'card';
       const imgDoc = document.createElement('img');
@@ -395,7 +394,6 @@ function renderCardsInHand() {
       const imgDoc: HTMLElement = document.getElementById(`card-img-${i}`);
       // only change the card that changed src
       if (cardsInHand[i] !== `../${imgDoc.src}`) {
-        console.log(`change card ${i}`);
         imgDoc.src = cardsInHand[i];
       }
     }
@@ -416,9 +414,9 @@ function renderCardsInCenter() {
   for (let i = 0; i < GAME_STATE.players.size; i += 1) {
     const placeholder = document.createElement('div');
     placeholder.className = 'card';
-    placeholder.id = `card-${i}`;
+    placeholder.id = `card-center-${i}`;
     const imgDoc = document.createElement('img');
-    imgDoc.id = `card-img-${i}`;
+    imgDoc.id = `card-center-img-${i}`;
     imgDoc.src = '../assets/imgs/placeholder.png';
     placeholder.append(imgDoc);
     centerBoard.append(placeholder);
@@ -485,8 +483,6 @@ function renderBoard(prevState: GameState) {
 }
 
 function renderEntireBoard() {
-  console.log('player is ');
-  console.log(getPlayer(playerId));
   if (getPlayer(playerId) === undefined) return;
   renderCardsInHand();
   renderInstruction();
