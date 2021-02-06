@@ -162,16 +162,6 @@ function generateRoomCode(): string {
   return 'AAAA';
 }
 
-function getShuffledCards() : string[] {
-  const array = new Array(NUM_CARDS);
-  for (let i = 0; i < NUM_CARDS; i += 1) {
-    array.push(getCard(i + 1));
-  }
-  const arr = shuffle(array);
-  console.log(arr);
-  return arr;
-}
-
 function initializeGameState(gameId): GameState {
   const gameState: GameState = {
     cards: shuffle(getAllCards().slice()),
@@ -298,6 +288,8 @@ function submitCard(gameRoomId: string, playerId: number, cardNum: string) {
   if (gameState.answerCards.length === gameState.players.size) {
     // if all players submitted card
     gameState.gameStatus = GameStatus.WAITING_FOR_JUDGING;
+    // shuffle the answer cards
+    shuffle(gameState.answerCards);
   } else {
     gameState.gameStatus = GameStatus.WAITING_FOR_CARDS;
   }
