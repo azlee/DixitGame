@@ -446,12 +446,9 @@ function renderCardsInCenter() {
   }
   // highlight the card the player bet on
   if (playerId !== GAME_STATE.storyteller) {
-    console.log('render card player selected');
     // get the card the player selected
     for (let i = 0; i < GAME_STATE.answerCards.length; i += 1) {
       const imgDoc = document.getElementById(`card-center-img-${i}`);
-      console.log(`imgDoc.src is ${imgDoc.src}`);
-      console.log(`betCard is ${player.betCard}`);
       if (player.betCard !== '' && imgDoc.src.includes(`${player.betCard}`)) {
         // add styling to the bet card
         imgDoc.style.boxShadow = '0px 12px 22px 1px #333';
@@ -486,6 +483,24 @@ function renderPlayers() {
     const img: HTMLElement = document.createElement('img');
     img.id = `player-img-${i}`;
     img.src = player.img;
+    // if judging complete then set all cats to active
+    if (GAME_STATE.gameStatus === GameStatus.JUDGING_COMPLETE) {
+      img.classList.add('active-cat');
+    }
+    // check if player has submitted or bet card then add style
+    // if storyteller then add class if they submitted clue
+    if (player.id === GAME_STATE.storyteller && GAME_STATE.storytellerCard !== '') {
+      img.classList.add('active-cat');
+    }
+    if (GAME_STATE.gameStatus === GameStatus.WAITING_FOR_CARDS) {
+      if (player.submittedCard !== '') {
+        img.classList.add('active-cat');
+      }
+    } else if (GAME_STATE.gameStatus === GameStatus.WAITING_FOR_JUDGING) {
+      if (player.betCard !== '') {
+        img.classList.add('active-cat');
+      }
+    } else { const name: HTMLElement = document.createElement('p'); }
     const name: HTMLElement = document.createElement('p');
     name.id = `player-name-${i}`;
     name.innerHTML = player.name;

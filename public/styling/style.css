@@ -49,6 +49,11 @@ body {
     display: block;
 }
 
+.active-cat {
+    -webkit-filter: drop-shadow(5px 5px 5px #222);
+    filter: drop-shadow(5px 5px 5px #222);
+}
+
 #players .storyteller img {
     -webkit-filter: drop-shadow(5px 5px 5px #1AC6FF);
     filter: drop-shadow(5px 5px 5px #1AC6FF);
