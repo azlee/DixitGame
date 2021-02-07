@@ -165,9 +165,9 @@ interface Player {
   img: string;
   name: string;
   role: PlayerRole,
-  selectedCard: string;
   score: number,
   state: PlayerState,
+  submittedCard: string;
 }
 
  interface GameState {
@@ -442,6 +442,20 @@ function renderCardsInCenter() {
       imgDoc.addEventListener('click', () => {
         applyMove(Move.PLAYER_BET, cardLocation);
       });
+    }
+  }
+  // highlight the card the player bet on
+  if (playerId !== GAME_STATE.storyteller) {
+    console.log('render card player selected');
+    // get the card the player selected
+    for (let i = 0; i < GAME_STATE.answerCards.length; i += 1) {
+      const imgDoc = document.getElementById(`card-center-img-${i}`);
+      console.log(`imgDoc.src is ${imgDoc.src}`);
+      console.log(`betCard is ${player.betCard}`);
+      if (player.betCard !== '' && imgDoc.src.includes(`${player.betCard}`)) {
+        // add styling to the bet card
+        imgDoc.style.boxShadow = '0px 12px 22px 1px #333';
+      }
     }
   }
 }
