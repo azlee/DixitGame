@@ -436,7 +436,8 @@ function renderCardsInCenter() {
     const cardLocation = GAME_STATE.answerCards[i];
     imgDoc.src = !allPlayersPlayed ? '../assets/imgs/back.png' : `../${cardLocation}`;
     // if all players played then add cursor pointer to cards if not the card the player chose
-    if (allPlayersPlayed && GAME_STATE.storyteller !== playerId && cardLocation !== playerCard) {
+    if (allPlayersPlayed && GAME_STATE.storyteller !== playerId && cardLocation !== playerCard
+      && GAME_STATE.gameStatus !== GameStatus.JUDGING_COMPLETE) {
       imgDoc.style.cursor = 'pointer';
       // add event listener to bet on card
       imgDoc.addEventListener('click', () => {
