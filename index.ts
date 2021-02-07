@@ -73,7 +73,6 @@ interface GameState {
   playersStr: string;
   roundNum: number;
   storytellerCard: string;
-  winnerCard: string;
 }
 
 interface PlayerGame {
@@ -189,7 +188,6 @@ function initializeGameState(gameId): GameState {
     playersStr: '',
     roundNum: 1,
     storytellerCard: '',
-    winnerCard: null,
   };
   return gameState;
 }
@@ -352,23 +350,18 @@ function calculateScores(gameRoomId: string) {
   }
   // assign 1 bonus point per vote of player's card
   if (numGuessedStoryTeller !== players.size - 1) {
-    players.forEach((p) => {
-      // get the player who's card they voted for
-      const playerVotedFor: number = cardMap.get(p.betCard);
-      players.get(playerVotedFor).score += 1;
-    });
-  }
-  // if at least one player but not all the players guessed the storyteller
-  // then storyteller gets 3 points
-  // and players who guessed right get 3 points
-  if (numGuessedStoryTeller !== players.size - 1) {
     // storyteller gets 3 points
     players.get(storyteller).score += 3;
-    // players who guessed right gets 3 points
     players.forEach((p) => {
-      if (p.betCard === storytellerCard) {
-        // give players who guessed correct 3 points
-        players.get(p.id).score += 3;
+      if (p.id !== storyteller) {
+        // get the player who's card they voted for
+        if (p.betCard !== storytellerCard) {
+          const playerVotedFor: number = cardMap.get(p.betCard);
+          players.get(playerVotedFor).score += 1;
+        } else {
+          // give players who guessed correct 3 points
+          players.get(p.id).score += 3;
+        }
       }
     });
   }

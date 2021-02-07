@@ -184,7 +184,6 @@ interface Player {
   playersStr: string;
   roundNum: number;
   storytellerCard: string;
-  winnerCard: string;
 }
 
 let GAME_STATE: GameState = {
@@ -200,7 +199,6 @@ let GAME_STATE: GameState = {
   playersStr: null,
   roundNum: 1,
   storytellerCard: '',
-  winnerCard: null,
 };
 
 let playerId: number = null;
