@@ -16,9 +16,10 @@ const port = 3000;
 ************************************************ */
 enum GameStatus {
   WAITING_FOR_ALL_PLAYERS,
-  WAITING_FOR_CLUE,
-  WAITING_FOR_CARDS,
-  WAITING_FOR_JUDGING,
+  WAITING_FOR_CLUE, // waiting for storyteller to put card down
+  WAITING_FOR_CARDS, // waiting for non storytellers to put card down
+  WAITING_FOR_JUDGING, // waiting for all players to place bets
+  JUDGING_COMPLETE // judging complete, assign the points and animate
 }
 
 enum PlayerRole {
@@ -42,9 +43,12 @@ enum Move {
   STORY_TELLER_SUBMIT,
   // non story teller submit card
   PLAYER_SUBMIT_CARD,
+  // player bets on a card
+  PLAYER_BET_CARD
 }
 
 interface Player {
+  betCard: string;
   cardsInHand: string[];
   id: number;
   img: string;
@@ -239,6 +243,7 @@ function createPlayer(gameRoomCode: string, name: string): Player {
   const role = gameState.players.size === 0 ? PlayerRole.STORYTELLER : PlayerRole.PLAYER;
   const cards: string[] = getCards(gameRoomCode, NUMBER_CARDS_PER_PLAYER);
   const player: Player = {
+    betCard: '',
     cardsInHand: cards,
     id: gameState.players.size + 1,
     img: 'assets/imgs/cat.png',
@@ -316,6 +321,86 @@ function submitCard(gameRoomId: string, playerId: number, cardNum: string) {
 }
 
 /**
+ * Calculate the scores of each player in the game based on their bet cards
+ * If nobody or everybody finds the correct card, the storyteller scores 0,
+ * and each of the other players scores 2.
+ * Otherwise the storyteller and whoever found the correct answer score 3.
+ * Players score 1 point for every vote for their own card.
+ * @param gameRoomId game room id
+ */
+function calculateScores(gameRoomId: string) {
+  const gameState: GameState = GAME_ROOMS.get(gameRoomId);
+  const { players, storytellerCard, storyteller } = gameState;
+  // iterate through players
+  // calculate number who guessed the correct storyteller card
+  let numGuessedStoryTeller = 0;
+  // create map of the card to the player id who placed that card
+  const cardMap: Map<string, number> = new Map<string, number>();
+  players.forEach((p) => {
+    if (p.betCard === storytellerCard) {
+      numGuessedStoryTeller += 1;
+    }
+    cardMap.set(p.submittedCard, p.id);
+  });
+  if (numGuessedStoryTeller === 0 || numGuessedStoryTeller === players.size - 1) {
+    // All players except storyteller gets 2 points
+    players.forEach((p) => {
+      if (p.id !== storyteller) {
+        players.get(p.id).score += 2;
+      }
+    });
+  }
+  // assign 1 bonus point per vote of player's card
+  if (numGuessedStoryTeller !== players.size - 1) {
+    players.forEach((p) => {
+      // get the player who's card they voted for
+      const playerVotedFor: number = cardMap.get(p.betCard);
+      players.get(playerVotedFor).score += 1;
+    });
+  }
+  // if at least one player but not all the players guessed the storyteller
+  // then storyteller gets 3 points
+  // and players who guessed right get 3 points
+  if (numGuessedStoryTeller !== players.size - 1) {
+    // storyteller gets 3 points
+    players.get(storyteller).score += 3;
+    // players who guessed right gets 3 points
+    players.forEach((p) => {
+      if (p.betCard === storytellerCard) {
+        // give players who guessed correct 3 points
+        players.get(p.id).score += 3;
+      }
+    });
+  }
+}
+
+/**
+ * Player bets on a card
+ * @param gameRoomId game room
+ * @param playerId player id
+ * @param card card the player bet on
+ */
+function playerBetCard(gameRoomId: string, playerId: number, card: string) {
+  const gameState: GameState = GAME_ROOMS.get(gameRoomId);
+  const { players } = gameState;
+  const player: Player = players.get(playerId);
+  // set the players bet card
+  player.betCard = card;
+  // check if all players bet - if so close the voting and
+  // calculate points and move on to next state
+  let numVotes = 0;
+  players.forEach((p) => {
+    if (p.betCard !== '') numVotes += 1;
+  });
+  if (numVotes === players.size - 1) { // all players but storyteller voted
+    // calculate points assigned
+    calculateScores(gameRoomId);
+    // close voting by moving to next state
+    gameState.gameStatus = GameStatus.JUDGING_COMPLETE;
+  }
+}
+
+/**
  * Apply the move
  * @param move
  * @param gameRoomId
@@ -328,6 +413,8 @@ function applyMove(move: Move, gameRoomId: string, playerId: number, params: any
     submitStorytellerCard(gameRoomId, params.cardNum, playerId, params.clue);
   } else if (move === Move.PLAYER_SUBMIT_CARD) {
     submitCard(gameRoomId, playerId, params.cardNum);
+  } else if (move === Move.PLAYER_BET_CARD) {
+    playerBetCard(gameRoomId, playerId, params.betCard);
   }
   sendStateUpdate(gameRoomId);
 }

@@ -117,9 +117,10 @@ const rectangles = [
  *************************************************************************** */
 enum GameStatus {
   WAITING_FOR_ALL_PLAYERS,
-  WAITING_FOR_CLUE,
-  WAITING_FOR_CARDS,
-  WAITING_FOR_JUDGING,
+  WAITING_FOR_CLUE, // waiting for storyteller to put card down
+  WAITING_FOR_CARDS, // waiting for non storytellers to put card down
+  WAITING_FOR_JUDGING, // waiting for all players to place bets
+  JUDGING_COMPLETE // judging complete, assign the points and animate
 }
 
 enum PlayerRole {
@@ -144,6 +145,8 @@ enum Move {
   STORY_TELLER_SUBMIT,
   // non story teller submit card
   PLAYER_SUBMIT_CARD,
+  // non story teller picks a card that they think was the storyteller's
+  PLAYER_BET,
 }
 
 enum Instruction {
@@ -156,11 +159,13 @@ enum Instruction {
 }
 
 interface Player {
+  betCard: string;
   cardsInHand: string[];
   id: number;
   img: string;
   name: string;
   role: PlayerRole,
+  selectedCard: string;
   score: number,
   state: PlayerState,
 }
@@ -254,7 +259,7 @@ function addDisableEnableSubmitButton() {
 /**
  * Apply a move
  */
-function applyMove(move: Move) {
+function applyMove(move: Move, selectedCard: string) {
   console.log(`move is ${Move[move]}`);
   // Submit the storyteller's card & clue
   const params: any = {};
@@ -287,6 +292,8 @@ function applyMove(move: Move) {
     params.cardNum = selectedCardIndex;
     // clear radio card selection
     document.getElementById(`card-${i}`).checked = false;
+  } else if (move === Move.PLAYER_BET && GAME_STATE.gameStatus === GameStatus.WAITING_FOR_JUDGING) {
+    params.betCard = selectedCard;
   }
   socket.emit('move', {
     gameRoom: GAME_STATE.gameId,
@@ -317,7 +324,7 @@ function renderInstruction() {
       button.id = 'submitCardButton';
       button.innerHTML = 'Submit';
       button.addEventListener('click', () => {
-        applyMove(Move.PLAYER_SUBMIT_CARD);
+        applyMove(Move.PLAYER_SUBMIT_CARD, '');
       });
       instructionDiv.append(button);
       addDisableEnableSubmitButton();
@@ -353,7 +360,7 @@ function renderStoryTellerClue() {
     storyTellerClue.innerHTML = '';
     // add event listener to submit button
     button.addEventListener('click', () => {
-      applyMove(Move.STORY_TELLER_SUBMIT);
+      applyMove(Move.STORY_TELLER_SUBMIT, '');
     });
     storyTellerClue.append(clueLabel);
     storyTellerClue.append(clueBox);
@@ -429,12 +436,14 @@ function renderCardsInCenter() {
     // to do - add imgs and radio selector
     const imgDoc = document.getElementById(`card-center-img-${i}`);
     const cardLocation = GAME_STATE.answerCards[i];
-    console.log(`cardLocation is ${cardLocation}`);
-    console.log(`playerCard is ${playerCard}`);
     imgDoc.src = !allPlayersPlayed ? '../assets/imgs/back.png' : `../${cardLocation}`;
     // if all players played then add cursor pointer to cards if not the card the player chose
     if (allPlayersPlayed && GAME_STATE.storyteller !== playerId && cardLocation !== playerCard) {
       imgDoc.style.cursor = 'pointer';
+      // add event listener to bet on card
+      imgDoc.addEventListener('click', () => {
+        applyMove(Move.PLAYER_BET, cardLocation);
+      });
     }
   }
 }
