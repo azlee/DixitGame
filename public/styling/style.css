@@ -49,6 +49,13 @@ body {
     display: block;
 }
 
+/* marks the player on the game board */
+.playerMarker {
+    width: 30px;
+    position: absolute;
+    z-index: 2;
+}
+
 .active-cat {
     -webkit-filter: drop-shadow(5px 5px 5px #222);
     filter: drop-shadow(5px 5px 5px #222);
