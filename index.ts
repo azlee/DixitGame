@@ -1,11 +1,11 @@
-const express = require('express');
+const express = require("express");
 
 const app = express();
-app.use(express.static('./public'));
-const http = require('http').Server(app);
+app.use(express.static("./public"));
+const http = require("http").Server(app);
 
-const io = require('socket.io')(http);
-const fs = require('fs');
+const io = require("socket.io")(http);
+const fs = require("fs");
 
 const port = 3000;
 
@@ -13,13 +13,13 @@ const port = 3000;
  *
  * Interfaces & enums
  *
-************************************************ */
+ ************************************************ */
 enum GameStatus {
   WAITING_FOR_ALL_PLAYERS,
   WAITING_FOR_CLUE, // waiting for storyteller to put card down
   WAITING_FOR_CARDS, // waiting for non storytellers to put card down
   WAITING_FOR_JUDGING, // waiting for all players to place bets
-  JUDGING_COMPLETE // judging complete, assign the points and animate
+  JUDGING_COMPLETE, // judging complete, assign the points and animate
 }
 
 enum PlayerRole {
@@ -44,7 +44,7 @@ enum Move {
   // non story teller submit card
   PLAYER_SUBMIT_CARD,
   // player bets on a card
-  PLAYER_BET_CARD
+  PLAYER_BET_CARD,
 }
 
 interface Player {
@@ -53,9 +53,9 @@ interface Player {
   id: number;
   img: string;
   name: string;
-  role: PlayerRole,
-  score: number,
-  state: PlayerState,
+  role: PlayerRole;
+  score: number;
+  state: PlayerState;
   submittedCard: string;
 }
 
@@ -76,15 +76,15 @@ interface GameState {
 }
 
 interface PlayerGame {
-  playerId: number,
-  gameRoomCode: string,
+  playerId: number;
+  gameRoomCode: string;
 }
 
 /** ***********************************************
  *
  * Constants
  *
-************************************************ */
+ ************************************************ */
 
 // Map of the game room code to the game state
 const GAME_ROOMS = new Map<String, GameState>();
@@ -105,11 +105,11 @@ const MAX_NUMBER_PLAYERS = 8;
  *************************************************************************** */
 
 /**
-  * Get the card at index i
-  * (card imgs are numbered 1 to 220)
-  * @param index
-  */
-function getCard(index : number) : string | undefined {
+ * Get the card at index i
+ * (card imgs are numbered 1 to 220)
+ * @param index
+ */
+function getCard(index: number): string | undefined {
   if (index < 1 || index > 220) {
     return undefined;
   }
@@ -128,15 +128,15 @@ function getAllCards(): string[] {
 }
 
 /**
-* Randomly shuffle an array
-* https://stackoverflow.com/a/2450976/1293256
-* @param  {Array} array The array to shuffle
-* @return {String}      The first item in the shuffled array
-*/
+ * Randomly shuffle an array
+ * https://stackoverflow.com/a/2450976/1293256
+ * @param  {Array} array The array to shuffle
+ * @return {String}      The first item in the shuffled array
+ */
 function shuffle(array) {
   let currentIndex = array.length;
-  let temporaryValue; let
-    randomIndex;
+  let temporaryValue;
+  let randomIndex;
 
   // While there remain elements to shuffle...
   while (currentIndex !== 0) {
@@ -157,8 +157,8 @@ function shuffle(array) {
  */
 function generateRoomCode(): string {
   const len = 4;
-  const arr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  let code = '';
+  const arr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let code = "";
   for (let i = len; i > 0; i -= 1) {
     code += arr[Math.floor(Math.random() * arr.length)];
   }
@@ -166,7 +166,7 @@ function generateRoomCode(): string {
     return generateRoomCode();
   }
   // return code;
-  return 'AAAA';
+  return "AAAA";
 }
 
 /**
@@ -176,7 +176,7 @@ function generateRoomCode(): string {
 function initializeGameState(gameId): GameState {
   const gameState: GameState = {
     cards: shuffle(getAllCards().slice()),
-    clue: '',
+    clue: "",
     // cards in play (in center)
     answerCards: [],
     discardAnswers: [],
@@ -185,9 +185,9 @@ function initializeGameState(gameId): GameState {
     gameStatus: GameStatus.WAITING_FOR_CLUE,
     numCardsPerPlayer: NUMBER_CARDS_PER_PLAYER,
     players: new Map<number, Player>(),
-    playersStr: '',
+    playersStr: "",
     roundNum: 1,
-    storytellerCard: '',
+    storytellerCard: "",
   };
   return gameState;
 }
@@ -208,7 +208,9 @@ function createGameRoom(): GameState {
  * @param gameRoomCode game room code
  */
 function moveDiscardPileToDeck(gameRoomCode: string) {
-  const discard: string[] = shuffle(GAME_ROOMS.get(gameRoomCode).discardAnswers.slice());
+  const discard: string[] = shuffle(
+    GAME_ROOMS.get(gameRoomCode).discardAnswers.slice()
+  );
   GAME_ROOMS.get(gameRoomCode).cards.concat(discard);
   GAME_ROOMS.get(gameRoomCode).discardAnswers = [];
 }
@@ -238,26 +240,33 @@ function getCards(gameRoomCode: string, numberCards: number) {
  */
 function createPlayer(gameRoomCode: string, name: string): Player {
   const gameState: GameState = GAME_ROOMS.get(gameRoomCode);
-  const role = gameState.players.size === 0 ? PlayerRole.STORYTELLER : PlayerRole.PLAYER;
+  const role =
+    gameState.players.size === 0 ? PlayerRole.STORYTELLER : PlayerRole.PLAYER;
   const cards: string[] = getCards(gameRoomCode, NUMBER_CARDS_PER_PLAYER);
   const player: Player = {
-    betCard: '',
+    betCard: "",
     cardsInHand: cards,
     id: gameState.players.size + 1,
-    img: 'assets/imgs/cat.png',
+    img: "assets/imgs/cat.png",
     name,
     role,
     score: 0,
-    state: role === PlayerRole.STORYTELLER ? PlayerState.NOT_PLAYED_CLUE
-      : PlayerState.NOT_PLAYED_CARD,
-    submittedCard: '',
+    state:
+      role === PlayerRole.STORYTELLER
+        ? PlayerState.NOT_PLAYED_CLUE
+        : PlayerState.NOT_PLAYED_CARD,
+    submittedCard: "",
   };
   // add player to the game room
   gameState.players.set(player.id, player);
   return player;
 }
 
-function addPlayerSocketIdToMap(socketId: string, gameRoomId: string, playerId: number) {
+function addPlayerSocketIdToMap(
+  socketId: string,
+  gameRoomId: string,
+  playerId: number
+) {
   SOCKETS_MAP.set(socketId, { playerId, gameRoomCode: gameRoomId });
 }
 
@@ -268,10 +277,12 @@ function addPlayerSocketIdToMap(socketId: string, gameRoomId: string, playerId: 
  * @param playerId player id
  * @param clue clue from storyteller
  */
-function submitStorytellerCard(gameRoomId: string,
+function submitStorytellerCard(
+  gameRoomId: string,
   cardNum: number,
   playerId: number,
-  clue: string) {
+  clue: string
+) {
   const gameState: GameState = GAME_ROOMS.get(gameRoomId);
   const player: Player = gameState.players.get(playerId);
   // put the card in the middle
@@ -340,7 +351,10 @@ function calculateScores(gameRoomId: string) {
     }
     cardMap.set(p.submittedCard, p.id);
   });
-  if (numGuessedStoryTeller === 0 || numGuessedStoryTeller === players.size - 1) {
+  if (
+    numGuessedStoryTeller === 0 ||
+    numGuessedStoryTeller === players.size - 1
+  ) {
     // All players except storyteller gets 2 points
     players.forEach((p) => {
       if (p.id !== storyteller) {
@@ -383,9 +397,10 @@ function playerBetCard(gameRoomId: string, playerId: number, card: string) {
   // calculate points and move on to next state
   let numVotes = 0;
   players.forEach((p) => {
-    if (p.betCard !== '') numVotes += 1;
+    if (p.betCard !== "") numVotes += 1;
   });
-  if (numVotes === players.size - 1) { // all players but storyteller voted
+  if (numVotes === players.size - 1) {
+    // all players but storyteller voted
     // calculate points assigned
     calculateScores(gameRoomId);
     // close voting by moving to next state
@@ -400,7 +415,12 @@ function playerBetCard(gameRoomId: string, playerId: number, card: string) {
  * @param playerId
  * @param params
  */
-function applyMove(move: Move, gameRoomId: string, playerId: number, params: any) {
+function applyMove(
+  move: Move,
+  gameRoomId: string,
+  playerId: number,
+  params: any
+) {
   if (move === Move.STORY_TELLER_SUBMIT) {
     // storyteller is submitting card & clue
     submitStorytellerCard(gameRoomId, params.cardNum, playerId, params.clue);
@@ -419,9 +439,9 @@ function applyMove(move: Move, gameRoomId: string, playerId: number, params: any
  *************************************************************************** */
 
 /**
-  * Send game state update to the game room
-  * @param gameRoomCode
-  */
+ * Send game state update to the game room
+ * @param gameRoomCode
+ */
 function sendStateUpdate(gameRoomCode: string) {
   const gameState: GameState = GAME_ROOMS.get(gameRoomCode);
   if (gameState) {
@@ -432,10 +452,10 @@ function sendStateUpdate(gameRoomCode: string) {
   }
 }
 
-io.on('connection', (socket) => {
+io.on("connection", (socket) => {
   console.log(`new connection ${socket.id}`);
 
-  socket.on('createGame', (param) => {
+  socket.on("createGame", (param) => {
     try {
       // create game
       // TODO: allow more than one game and do socket.on('joinGame')
@@ -446,10 +466,10 @@ io.on('connection', (socket) => {
         // add player to socket map
         addPlayerSocketIdToMap(socket.id, gameState.gameId, player.id);
         console.log(`created game room ${gameState.gameId}`);
-        io.to(socket.id).emit('createGameSuccess', gameState.gameId);
+        io.to(socket.id).emit("createGameSuccess", gameState.gameId);
         sendStateUpdate(gameState.gameId);
       } else {
-        console.log('join game success');
+        console.log("join game success");
         const gameState: GameState = GAME_ROOMS.values().next().value;
         // create new player and add to existing game room
         const player: Player = createPlayer(gameState.gameId, param.name);
@@ -458,19 +478,22 @@ io.on('connection', (socket) => {
         // send state update
         sendStateUpdate(gameState.gameId);
         // send player their player id as sign that they've joined successfully
-        io.to(socket.id).emit(gameState.gameId, { joinGameSuccess: true, playerId: player.id });
+        io.to(socket.id).emit(gameState.gameId, {
+          joinGameSuccess: true,
+          playerId: player.id,
+        });
       }
     } catch (err) {
       console.error(`create game failure${err}`);
     }
   });
 
-  socket.on('move', (params) => {
+  socket.on("move", (params) => {
     applyMove(params.move, params.gameRoom, params.playerId, params.params);
   });
 });
 
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   res.sendFile(`${__dirname}/public/default.html`);
 });
 
